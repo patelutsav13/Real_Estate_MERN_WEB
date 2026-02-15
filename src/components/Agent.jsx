@@ -37,7 +37,7 @@ const AgentCard = ({ agent }) => {
                   ? agent.image
                   : agent.image?.startsWith("/uploads")
                     ? `${config.API_URL}${agent.image}`
-                    : agent.image || "/placeholder.svg"
+                    : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
               }
               alt={agent.name}
               className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
@@ -115,7 +115,7 @@ const AgentCard = ({ agent }) => {
                     ? agent.image
                     : agent.image?.startsWith("/uploads")
                       ? `${config.API_URL}${agent.image}`
-                      : agent.image || "/placeholder.svg"
+                      : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
                 }
                 alt="Agent"
                 className="w-full h-full object-cover opacity-90"
