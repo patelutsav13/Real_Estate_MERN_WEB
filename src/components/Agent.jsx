@@ -33,11 +33,13 @@ const AgentCard = ({ agent }) => {
           <div className="flex items-start space-x-4">
             <img
               src={
-                agent.image?.startsWith("http") || agent.image?.startsWith("data:")
-                  ? agent.image
-                  : agent.image?.startsWith("/uploads")
-                    ? `${config.API_URL}${agent.image}`
-                    : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
+                agent.image?.includes("localhost:5000")
+                  ? agent.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                  : agent.image?.startsWith("http") || agent.image?.startsWith("data:")
+                    ? agent.image
+                    : agent.image?.startsWith("/uploads")
+                      ? `${config.API_URL}${agent.image}`
+                      : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
               }
               alt={agent.name}
               className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
@@ -111,11 +113,13 @@ const AgentCard = ({ agent }) => {
             <div className="flex-1 relative">
               <img
                 src={
-                  agent.image?.startsWith("http") || agent.image?.startsWith("data:")
-                    ? agent.image
-                    : agent.image?.startsWith("/uploads")
-                      ? `${config.API_URL}${agent.image}`
-                      : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
+                  agent.image?.includes("localhost:5000")
+                    ? agent.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                    : agent.image?.startsWith("http") || agent.image?.startsWith("data:")
+                      ? agent.image
+                      : agent.image?.startsWith("/uploads")
+                        ? `${config.API_URL}${agent.image}`
+                        : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
                 }
                 alt="Agent"
                 className="w-full h-full object-cover opacity-90"
