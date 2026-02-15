@@ -23,6 +23,30 @@ const AdminAddProperty = ({ setActiveTab }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+
+        if (file) {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert("Invalid file type! Please upload only JPG, JPEG, PNG, or WEBP images.");
+                e.target.value = "";
+                setImageFile(null);
+                return;
+            }
+
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert("File too large! Please upload an image smaller than 5MB.");
+                e.target.value = "";
+                setImageFile(null);
+                return;
+            }
+
+            setImageFile(file);
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -163,7 +187,7 @@ const AdminAddProperty = ({ setActiveTab }) => {
                         <Upload className="w-10 h-10 mx-auto text-gray-400 mb-2" />
                         <label className="cursor-pointer">
                             <span className="text-purple-600 font-bold text-lg hover:underline">Click to Upload Property Image</span>
-                            <input type="file" className="hidden" onChange={e => setImageFile(e.target.files[0])} accept="image/*" />
+                            <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
                         </label>
                         {imageFile ? (
                             <p className="text-sm text-green-500 mt-2 font-medium">{imageFile.name}</p>
@@ -186,3 +210,4 @@ const AdminAddProperty = ({ setActiveTab }) => {
 }
 
 export default AdminAddProperty
+
