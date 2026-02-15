@@ -127,11 +127,13 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
         <div className="relative">
           <img
             src={
-              currentProperty.image?.startsWith("http") || currentProperty.image?.startsWith("data:")
-                ? currentProperty.image
-                : currentProperty.image?.startsWith("/uploads")
-                  ? `${config.API_URL}${currentProperty.image}`
-                  : `${config.API_URL}/uploads/${currentProperty.image}` || "/placeholder.svg"
+              currentProperty.image?.includes("localhost:5000")
+                ? currentProperty.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                : currentProperty.image?.startsWith("http") || currentProperty.image?.startsWith("data:")
+                  ? currentProperty.image
+                  : currentProperty.image?.startsWith("/uploads")
+                    ? `${config.API_URL}${currentProperty.image}`
+                    : `${config.API_URL}/uploads/${currentProperty.image}` || "/placeholder.svg"
             }
             alt={currentProperty.name}
             className="w-full h-[420px] object-cover"
