@@ -1,256 +1,246 @@
-// import { useState, useEffect } from "react"
-// import { useAuth } from "../../context/AuthContext"
-// import AdminDashboard from "./AdminDashboard"
-// import AdminUsers from "./AdminUsers"
-// import AdminProperties from "./AdminProperties"
-// import AdminAddProperty from "./AdminAddProperty" // NEW
-// import AdminAddAgent from "./AdminAddAgent"       // NEW
+"use client"
 
-// // ICONS
-// const IconDashboard = () => <span>📊</span>
-// const IconUsers = () => <span>👥</span>
-// const IconHome = () => <span>🏠</span>
-// const IconAddProp = () => <span>➕🏠</span>
-// const IconAddUser = () => <span>➕👤</span>
-// const IconLogout = () => <span>🚪</span>
+import { Phone, Mail, MapPin, Award, Briefcase, Video, Mic, MicOff, PhoneOff, Camera, CameraOff } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import config from "../config"
+import Agent1 from "../assets/agent1.png";
+import Agent2 from "../assets/agent2.png";
+import Agent3 from "../assets/agent3.png";
+import Agent4 from "../assets/agent4.png";
+import Agent5 from "../assets/agent5.png";
 
-// const AdminLayout = ({ setCurrentPage }) => {
-//     const { user, logout } = useAuth()
-//     const [activeTab, setActiveTab] = useState("dashboard")
+const AgentCard = ({ agent }) => {
+  const [showDetails, setShowDetails] = useState(false)
+  const [isCalling, setIsCalling] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isCameraOn, setIsCameraOn] = useState(true)
 
-//     useEffect(() => {
-//         if (!user || user.role !== "admin") {
-//             setCurrentPage("login")
-//         }
-//     }, [user, setCurrentPage])
+  // Start Call
+  const startCall = () => {
+    setIsCalling(true)
+  }
 
-//     if (!user || user.role !== "admin") return null
+  // End Call
+  const endCall = () => {
+    setIsCalling(false)
+    setIsMuted(false)
+  }
 
-//     const renderContent = () => {
-//         switch (activeTab) {
-//             case "dashboard": return <AdminDashboard />
-//             case "users": return <AdminUsers />
-//             case "properties": return <AdminProperties />
-//             case "add-property": return <AdminAddProperty setActiveTab={setActiveTab} />
-//             case "add-agent": return <AdminAddAgent setActiveTab={setActiveTab} />
-//             default: return <AdminDashboard />
-//         }
-//     }
+  return (
+    <>
+      <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+        <div className="p-6">
+          <div className="flex items-start space-x-4">
+            <img
+              src={
+                agent.image?.startsWith("http") || agent.image?.startsWith("data:")
+                  ? agent.image
+                  : agent.image?.startsWith("/uploads")
+                    ? `${config.API_URL}${agent.image}`
+                    : agent.image || "/placeholder.svg"
+              }
+              alt={agent.name}
+              className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+            />
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{agent.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{agent.title}</p>
+              <div className="flex items-center space-x-2 mb-2">
+                <Phone className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{agent.phone}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-blue-600" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{agent.email}</span>
+              </div>
+            </div>
+          </div>
 
-//     const handleLogout = () => {
-//         logout()
-//         setCurrentPage("explore")
-//     }
+          {showDetails && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3 animate-fade-in">
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Address</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{agent.address}</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <Briefcase className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Experience</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{agent.experience} Years</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-2">
+                <Award className="w-5 h-5 text-blue-600 mt-1" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">Expertise</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{agent.expertise}</p>
+                </div>
+              </div>
 
-//     // PREMIUM SIDEBAR BUTTON COMPONENT
-//     const SidebarBtn = ({ id, label, icon }) => (
-//         <button
-//             onClick={() => setActiveTab(id)}
-//             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium
-//             ${activeTab === id
-//                     ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 transform scale-105"
-//                     : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:pl-6"
-//                 }`}
-//         >
-//             <div className="text-xl">{icon}</div>
-//             <span>{label}</span>
-//         </button>
-//     )
+              {/* Video Call Button */}
+              <button
+                onClick={startCall}
+                className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-semibold shadow-md"
+              >
+                <Video className="w-5 h-5" />
+                Start Video Call
+              </button>
+            </div>
+          )}
 
-//     return (
-//         <div className="flex h-screen bg-[#f3f4f6] dark:bg-[#0f172a] font-sans selection:bg-purple-500 selection:text-white">
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
+          >
+            {showDetails ? "Hide Details" : "View More Details"}
+          </button>
+        </div>
+      </div>
 
-//             {/* GLASSMORPHISM SIDEBAR */}
-//             <aside className="w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-r border-white/20 dark:border-gray-800 shadow-2xl flex flex-col fixed h-full z-20">
-//                 <div className="p-8">
-//                     <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-//                         Admin<span className="font-light">Panel</span>
-//                     </h1>
-//                     <p className="text-xs text-gray-400 mt-1 tracking-widest uppercase">Premium Control</p>
-//                 </div>
+      {/* 📹 VIDEO CALL MODAL OVERLAY */}
+      {isCalling && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-95 flex flex-col items-center justify-center p-4">
 
-//                 <nav className="flex-1 px-4 space-y-3 overflow-y-auto custom-scrollbar">
-//                     <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-4">Overview</p>
-//                     <SidebarBtn id="dashboard" label="Dashboard" icon={<IconDashboard />} />
+          {/* Main Call Container */}
+          <div className="relative w-full max-w-lg h-[80vh] bg-gray-900 rounded-3xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col">
 
-//                     <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Management</p>
-//                     <SidebarBtn id="users" label="Users & Agents" icon={<IconUsers />} />
-//                     <SidebarBtn id="properties" label="All Properties" icon={<IconHome />} />
-
-//                     <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Actions</p>
-//                     <SidebarBtn id="add-property" label="Add Property" icon={<IconAddProp />} />
-//                     <SidebarBtn id="add-agent" label="Add Agent" icon={<IconAddUser />} />
-//                 </nav>
-
-//                 <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-//                     <button
-//                         onClick={handleLogout}
-//                         className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all font-bold"
-//                     >
-//                         <IconLogout />
-//                         <span>Logout</span>
-//                     </button>
-//                 </div>
-//             </aside>
-
-//             {/* MAIN CONTENT AREA */}
-//             <main className="flex-1 overflow-y-auto ml-72 p-8 relative">
-//                 {/* Background Decor */}
-//                 <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 -z-10 pointer-events-none"></div>
-//                 <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-//                 <div className="fixed bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-//                 <div className="max-w-6xl mx-auto">
-//                     {renderContent()}
-//                 </div>
-//             </main>
-//         </div>
-//     )
-// }
-
-// export default AdminLayout
-
-
-import { useState, useEffect } from "react"
-import { useAuth } from "../../context/AuthContext"
-import AdminDashboard from "./AdminDashboard"
-import AdminUsers from "./AdminUsers"
-import AdminProperties from "./AdminProperties"
-import AdminAddProperty from "./AdminAddProperty" // NEW
-import AdminAddAgent from "./AdminAddAgent"       // NEW
-
-// ICONS
-// ICONS
-const IconDashboard = () => <span>📊</span>
-const IconUsers = () => <span>👥</span>
-const IconHome = () => <span>🏠</span>
-const IconAddProp = () => <span>➕🏠</span>
-const IconAddUser = () => <span>➕👤</span>
-const IconLogout = () => <span>🚪</span>
-const IconMenu = () => <span>☰</span>
-const IconClose = () => <span>✕</span>
-
-const AdminLayout = ({ setCurrentPage }) => {
-    const { user, logout } = useAuth()
-    const [activeTab, setActiveTab] = useState("dashboard")
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
-
-    useEffect(() => {
-        if (!user || user.role !== "admin") {
-            setCurrentPage("login")
-        }
-    }, [user, setCurrentPage])
-
-    if (!user || user.role !== "admin") return null
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case "dashboard": return <AdminDashboard />
-            case "users": return <AdminUsers />
-            case "properties": return <AdminProperties />
-            case "add-property": return <AdminAddProperty setActiveTab={setActiveTab} />
-            case "add-agent": return <AdminAddAgent setActiveTab={setActiveTab} />
-            default: return <AdminDashboard />
-        }
-    }
-
-    const handleLogout = () => {
-        logout()
-        setCurrentPage("explore")
-    }
-
-    // PREMIUM SIDEBAR BUTTON COMPONENT
-    const SidebarBtn = ({ id, label, icon }) => (
-        <button
-            onClick={() => {
-                setActiveTab(id)
-                setIsSidebarOpen(false)
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium
-            ${activeTab === id
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 transform scale-105"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:pl-6"
-                }`}
-        >
-            <div className="text-xl">{icon}</div>
-            <span>{label}</span>
-        </button>
-    )
-
-    return (
-        <div className="flex h-screen bg-[#f3f4f6] dark:bg-[#0f172a] font-sans selection:bg-purple-500 selection:text-white">
-
-            {/* MOBILE HEADER */}
-            <div className="md:hidden fixed top-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-30 px-6 py-4 flex justify-between items-center shadow-sm">
-                <h1 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Admin<span className="font-light">Panel</span>
-                </h1>
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-2xl text-gray-700 dark:text-gray-200">
-                    {isSidebarOpen ? <IconClose /> : <IconMenu />}
-                </button>
+            {/* Agent Video (Main Screen) */}
+            <div className="flex-1 relative">
+              <img
+                src={
+                  agent.image?.startsWith("http") || agent.image?.startsWith("data:")
+                    ? agent.image
+                    : agent.image?.startsWith("/uploads")
+                      ? `${config.API_URL}${agent.image}`
+                      : agent.image || "/placeholder.svg"
+                }
+                alt="Agent"
+                className="w-full h-full object-cover opacity-90"
+              />
+              <div className="absolute top-4 left-4 bg-black/50 px-4 py-2 rounded-full text-white backdrop-blur-md">
+                <h3 className="font-bold">{agent.name}</h3>
+                <span className="text-xs text-green-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  On Call
+                </span>
+              </div>
             </div>
 
-            {/* OVERLAY for Mobile */}
-            {isSidebarOpen && (
-                <div
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="fixed inset-0 bg-black/50 z-20 md:hidden"
-                ></div>
-            )}
-
-            {/* GLASSMORPHISM SIDEBAR */}
-            <aside className={`
-                fixed top-0 left-0 h-full w-72 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl 
-                border-r border-white/20 dark:border-gray-800 shadow-2xl flex flex-col z-40
-                transform transition-transform duration-300 ease-in-out
-                ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
-            `}>
-                <div className="p-8">
-                    <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        Admin<span className="font-light">Panel</span>
-                    </h1>
-                    <p className="text-xs text-gray-400 mt-1 tracking-widest uppercase">Premium Control</p>
+            {/* User Camera (PIP) */}
+            <div className="absolute top-4 right-4 w-32 h-44 bg-black rounded-xl border-2 border-white/20 overflow-hidden shadow-xl">
+              {isCameraOn ? (
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-gray-500 text-xs">
+                  {/* In a real app, this would be <video> from getUserMedia */}
+                  <span className="text-center p-2">User Camera Feed <br /> (You)</span>
                 </div>
-
-                <nav className="flex-1 px-4 space-y-3 overflow-y-auto custom-scrollbar">
-                    <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-4">Overview</p>
-                    <SidebarBtn id="dashboard" label="Dashboard" icon={<IconDashboard />} />
-
-                    <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Management</p>
-                    <SidebarBtn id="users" label="Users & Agents" icon={<IconUsers />} />
-                    <SidebarBtn id="properties" label="All Properties" icon={<IconHome />} />
-
-                    <p className="text-xs font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Actions</p>
-                    <SidebarBtn id="add-property" label="Add Property" icon={<IconAddProp />} />
-                    <SidebarBtn id="add-agent" label="Add Agent" icon={<IconAddUser />} />
-                </nav>
-
-                <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all font-bold"
-                    >
-                        <IconLogout />
-                        <span>Logout</span>
-                    </button>
+              ) : (
+                <div className="w-full h-full bg-gray-900 flex items-center justify-center text-white">
+                  <CameraOff className="w-8 h-8 opacity-50" />
                 </div>
-            </aside>
+              )}
+            </div>
 
-            {/* MAIN CONTENT AREA */}
-            <main className="flex-1 overflow-y-auto w-full md:ml-72 p-4 md:p-8 relative pt-20 md:pt-8">
-                {/* Background Decor */}
-                <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 -z-10 pointer-events-none"></div>
-                <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-                <div className="fixed bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+            {/* Call Controls */}
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-6 px-8 py-4 bg-black/60 backdrop-blur-md rounded-full">
 
-                <div className="max-w-6xl mx-auto">
-                    {renderContent()}
-                </div>
-            </main>
+              {/* Mute Toggle */}
+              <button
+                onClick={() => setIsMuted(!isMuted)}
+                className={`p-4 rounded-full transition-all ${isMuted ? 'bg-white text-black' : 'bg-gray-700/80 text-white hover:bg-gray-600'}`}
+              >
+                {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+              </button>
+
+              {/* End Call */}
+              <button
+                onClick={endCall}
+                className="p-4 bg-red-600 text-white rounded-full hover:bg-red-700 hover:scale-110 transition-all shadow-lg"
+              >
+                <PhoneOff className="w-8 h-8" />
+              </button>
+
+              {/* Camera Toggle */}
+              <button
+                onClick={() => setIsCameraOn(!isCameraOn)}
+                className={`p-4 rounded-full transition-all ${!isCameraOn ? 'bg-white text-black' : 'bg-gray-700/80 text-white hover:bg-gray-600'}`}
+              >
+                {isCameraOn ? <Camera className="w-6 h-6" /> : <CameraOff className="w-6 h-6" />}
+              </button>
+
+            </div>
+
+          </div>
+
+          <p className="text-white/50 mt-4 text-sm">End-to-End Encrypted</p>
         </div>
-    )
+      )}
+    </>
+  )
 }
 
-export default AdminLayout
+const Agent = () => {
+  const [agents, setAgents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const res = await fetch(`${config.API_URL}/api/auth/agents`)
+        const data = await res.json()
+        setAgents(data)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching agents:", err)
+        setLoading(false)
+      }
+    }
+    fetchAgents()
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            Our Expert{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Agents</span>
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Meet our professional real estate agents ready to help you
+          </p>
+        </div>
+
+        {/* Agents Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {loading ? (
+            <p className="text-center col-span-full">Loading Agents...</p>
+          ) : agents.length > 0 ? (
+            agents.map((agent) => (
+              <AgentCard key={agent._id} agent={agent} />
+            ))
+          ) : (
+            <p className="text-center col-span-full text-gray-500">No agents found.</p>
+          )}
+        </div>
+
+        {/* Contact CTA */}
+        <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white text-center">
+          <h2 className="text-3xl font-bold mb-4">Need Personalized Assistance?</h2>
+          <p className="text-lg mb-6 opacity-90">
+            Our agents are here to guide you through every step of your property journey
+          </p>
+          <button className="bg-white text-blue-600 px-8 py-3 rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold">
+            Schedule a Consultation
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Agent
 
