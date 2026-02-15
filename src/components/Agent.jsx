@@ -34,7 +34,7 @@ const AgentCard = ({ agent }) => {
             <img
               src={
                 agent.image?.includes("localhost:5000")
-                  ? agent.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                  ? agent.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL)
                   : agent.image?.startsWith("http") || agent.image?.startsWith("data:")
                     ? agent.image
                     : agent.image?.startsWith("/uploads")
@@ -114,7 +114,7 @@ const AgentCard = ({ agent }) => {
               <img
                 src={
                   agent.image?.includes("localhost:5000")
-                    ? agent.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                    ? agent.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL)
                     : agent.image?.startsWith("http") || agent.image?.startsWith("data:")
                       ? agent.image
                       : agent.image?.startsWith("/uploads")
