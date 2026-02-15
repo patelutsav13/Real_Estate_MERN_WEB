@@ -131,7 +131,7 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
                 ? currentProperty.image
                 : currentProperty.image?.startsWith("/uploads")
                   ? `${config.API_URL}${currentProperty.image}`
-                  : currentProperty.image || "/placeholder.svg"
+                  : `${config.API_URL}/uploads/${currentProperty.image}` || "/placeholder.svg"
             }
             alt={currentProperty.name}
             className="w-full h-[420px] object-cover"
