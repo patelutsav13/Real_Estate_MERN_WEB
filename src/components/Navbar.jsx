@@ -31,7 +31,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
     { name: "About", id: "about" },
     { name: "Contact", id: "contact" },
     ...(user ? [{ name: "Dashboard", id: "Dashboard" }] : []),
-  ].filter(item => user?.role === 'admin' ? item.name === 'Dashboard' : true)
+  ]
 
   return (
     <nav
@@ -57,7 +57,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center space-x-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
-            {navItems.map((item) => (
+            {(user?.role === "admin" ? [] : navItems).map((item) => (
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id)}
@@ -169,7 +169,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
         style={{ top: "64px" }}
       >
         <div className="flex flex-col p-6 space-y-4">
-          {navItems.map((item) => (
+          {(user?.role === "admin" ? [] : navItems).map((item) => (
             <button
               key={item.id}
               onClick={() => {
