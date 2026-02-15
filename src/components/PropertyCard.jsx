@@ -148,7 +148,7 @@ const PropertyCard = ({ property, onViewDetails }) => {
               ? property.image
               : property.image?.startsWith("/uploads")
                 ? `${config.API_URL}${property.image}`
-                : property.image || "/placeholder.svg"
+                : `${config.API_URL}/uploads/${property.image}` || "/placeholder.svg"
           }
           alt={property.name}
           className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
