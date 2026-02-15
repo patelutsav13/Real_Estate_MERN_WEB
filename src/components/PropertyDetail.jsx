@@ -128,7 +128,7 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
           <img
             src={
               currentProperty.image?.includes("localhost:5000")
-                ? currentProperty.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+                ? currentProperty.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL)
                 : currentProperty.image?.startsWith("http") || currentProperty.image?.startsWith("data:")
                   ? currentProperty.image
                   : currentProperty.image?.startsWith("/uploads")
