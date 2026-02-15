@@ -31,7 +31,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
     { name: "About", id: "about" },
     { name: "Contact", id: "contact" },
     ...(user ? [{ name: "Dashboard", id: "Dashboard" }] : []),
-  ]
+  ].filter(item => user?.role === 'admin' ? item.name === 'Dashboard' : true)
 
   return (
     <nav
