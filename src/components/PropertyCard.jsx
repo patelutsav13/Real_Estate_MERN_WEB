@@ -126,6 +126,8 @@
 import { useState } from "react"
 import { Heart, Bed, Bath, MapPin } from "lucide-react"
 
+import config from "../config"
+
 const PropertyCard = ({ property, onViewDetails }) => {
   const [liked, setLiked] = useState(false)
 
@@ -145,7 +147,7 @@ const PropertyCard = ({ property, onViewDetails }) => {
         <img
           src={
             property.image?.includes("localhost:5000")
-              ? property.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+              ? property.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL)
               : property.image?.startsWith("http") || property.image?.startsWith("data:")
                 ? property.image
                 : property.image?.startsWith("/uploads")
