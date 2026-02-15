@@ -69,7 +69,29 @@ const Sell = ({ openDetails, setCurrentPage }) => {
 
   // Handle File Change
   const handleFileChange = (e) => {
-    setImageFile(e.target.files[0])
+    const file = e.target.files[0];
+
+    if (file) {
+      // 1. Check File Type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Invalid file type! Please upload only JPG, JPEG, PNG, or WEBP images.");
+        e.target.value = ""; // Clear input
+        setImageFile(null);
+        return;
+      }
+
+      // 2. Check File Size (5MB Limit)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        alert("File too large! Please upload an image smaller than 5MB.");
+        e.target.value = ""; // Clear input
+        setImageFile(null);
+        return;
+      }
+
+      setImageFile(file);
+    }
   }
 
   // Handle Submit
