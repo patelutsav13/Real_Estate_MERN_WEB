@@ -144,11 +144,13 @@ const PropertyCard = ({ property, onViewDetails }) => {
       <div className="relative overflow-hidden group">
         <img
           src={
-            property.image?.startsWith("http") || property.image?.startsWith("data:")
-              ? property.image
-              : property.image?.startsWith("/uploads")
-                ? `${config.API_URL}${property.image}`
-                : `${config.API_URL}/uploads/${property.image}` || "/placeholder.svg"
+            property.image?.includes("localhost:5000")
+              ? property.image.replace("http://localhost:5000", config.API_URL).replace("localhost:5000", config.API_URL)
+              : property.image?.startsWith("http") || property.image?.startsWith("data:")
+                ? property.image
+                : property.image?.startsWith("/uploads")
+                  ? `${config.API_URL}${property.image}`
+                  : `${config.API_URL}/uploads/${property.image}` || "/placeholder.svg"
           }
           alt={property.name}
           className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
