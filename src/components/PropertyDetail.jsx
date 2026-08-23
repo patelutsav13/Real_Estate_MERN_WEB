@@ -1,319 +1,17 @@
-
-
-
-
-
-
-// "use client"
-
-// import { useState, useEffect } from "react"
-// import config from "../config"
-// import { Heart, Bed, Bath, MapPin } from "lucide-react"
-
-// const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
-//   if (!property) return null
-
-//   const [liked, setLiked] = useState(false)
-//   const [showPayRent, setShowPayRent] = useState(false)
-
-//   const [months, setMonths] = useState(1)
-//   const [paymentMethod, setPaymentMethod] = useState("GPay")
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     email: "",
-//   })
-
-//   // ✅ Fetch Fresh Property Data to Checking Real-time Status
-//   const [currentProperty, setCurrentProperty] = useState(property)
-
-//   useEffect(() => {
-//     const fetchLatestProperty = async () => {
-//       try {
-//         const res = await fetch(`${config.API_URL}/api/properties/${property._id}`)
-//         if (res.ok) {
-//           const data = await res.json()
-//           setCurrentProperty(data)
-//         }
-//       } catch (error) {
-//         console.error("Error fetching latest property data:", error)
-//       }
-//     }
-
-//     if (property?._id) {
-//       fetchLatestProperty()
-//     }
-//   }, [property._id])
-
-//   // ✅ Detect Rent Property
-//   const isRentProperty = currentProperty.source === "rent"
-
-//   const actionText = isRentProperty ? "Pay Rent" : "Buy Now"
-//   const totalPrice = Number(currentProperty.price) * months
-
-//   // ✅ Button Action Logic (Rent / Buy)
-//   const handleAction = () => {
-//     // 🚫 CHECK STATUS FIRST
-//     if (currentProperty.status === "Booked") {
-//       alert("⚠️ This Property Already Taken (Booked) \n\n You cannot buy this property again.")
-//       return
-//     }
-//     if (currentProperty.status === "Rented") {
-//       alert("⚠️ This Property Already Rented")
-//       return
-//     }
-
-//     const token = localStorage.getItem("token")
-
-//     // 🔒 If user not logged in → redirect to login
-//     if (!token) {
-//       setCurrentPage("login")
-//       return
-//     }
-
-//     // 🏠 RENT FLOW
-//     if (isRentProperty) {
-//       setCurrentPage("pay-rent")
-//       return
-//     }
-
-//     // 🛒 BUY FLOW
-//     setCurrentPage("buy-payment")
-//   }
-
-//   // ✅ Rent Payment Submit
-//   const handleSubmit = async (e) => {
-//     e.preventDefault()
-
-//     const payload = {
-//       name: formData.name,
-//       email: formData.email,
-//       propertyName: currentProperty.name,
-//       address: currentProperty.address || currentProperty.area,
-//       rentPerMonth: Number(currentProperty.price),
-//       months,
-//       totalPrice,
-//       paymentMethod,
-//     }
-
-//     try {
-//       const res = await fetch(`${config.API_URL}/api/rent/pay`, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(payload),
-//       })
-
-//       const data = await res.json()
-
-//       if (!res.ok) {
-//         alert(data.message || "Payment failed")
-//         return
-//       }
-
-//       alert("✅ Rent payment saved successfully")
-//       setShowPayRent(false)
-//     } catch (error) {
-//       console.error(error)
-//       alert("❌ Server error")
-//     }
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-10">
-//       <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-
-//         {/* IMAGE */}
-//         <div className="relative">
-//           <img
-//             src={
-//               currentProperty.image?.startsWith("http") || currentProperty.image?.startsWith("data:")
-//                 ? currentProperty.image
-//                 : currentProperty.image?.startsWith("/uploads")
-//                   ? `${config.API_URL}${currentProperty.image}`
-//                   : `${config.API_URL}/uploads/${currentProperty.image}` || "/placeholder.svg"
-//             }
-//             alt={currentProperty.name}
-//             className="w-full h-[420px] object-cover"
-//           />
-
-//           {currentProperty.status && (
-//             <div className={`absolute top-6 left-6 px-4 py-2 rounded-full text-white font-bold
-//               ${currentProperty.status === "For Rent" ? "bg-green-500" : "bg-blue-500"}`}>
-//               {currentProperty.status}
-//             </div>
-//           )}
-
-//           <button
-//             onClick={() => setLiked(!liked)}
-//             className="absolute top-6 right-6 p-3 rounded-full bg-white shadow"
-//           >
-//             <Heart className={`w-6 h-6 ${liked ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
-//           </button>
-//         </div>
-
-//         {/* DETAILS */}
-//         <div className="p-10">
-//           <h1 className="text-4xl font-bold mb-4">{currentProperty.name}</h1>
-
-//           <div className="flex items-center text-gray-600 mb-6">
-//             <MapPin className="w-5 h-5 mr-2" />
-//             {currentProperty.address || currentProperty.area}, Ahmedabad
-//           </div>
-
-//           <div className="flex justify-center gap-12 mb-8">
-//             <div className="flex items-center gap-3">
-//               <Bed className="w-6 h-6 text-blue-600" />
-//               {currentProperty.bedrooms} Bedrooms
-//             </div>
-//             <div className="flex items-center gap-3">
-//               <Bath className="w-6 h-6 text-blue-600" />
-//               {currentProperty.bathrooms} Bathrooms
-//             </div>
-//           </div>
-
-//           <div className="text-center mb-10">
-//             <span className="text-5xl font-bold text-blue-600">
-//               ₹{currentProperty.price}
-//             </span>
-//             {currentProperty.priceType && (
-//               <span className="text-xl text-gray-500 ml-2">
-//                 /{currentProperty.priceType}
-//               </span>
-//             )}
-//           </div>
-
-//           {/* ACTION BUTTON */}
-//           <div className="text-center mb-8">
-//             <button
-//               onClick={handleAction}
-//               className={`px-16 py-5 text-xl font-bold text-white rounded-xl transition transform hover:scale-105 shadow-xl
-//                 ${(currentProperty.status === "Booked")
-//                   ? "bg-gray-500 cursor-not-allowed hover:bg-gray-600" // Grey BG for Booked
-//                   : (currentProperty.status === "Rented")
-//                     ? "bg-gray-400 cursor-not-allowed hover:bg-gray-500"
-//                     : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-//                 }`}
-//             >
-//               {currentProperty.status === "Booked" ? "Booked (Sold Out)" : currentProperty.status === "Rented" ? "Rented ❌" : actionText}
-//             </button>
-//           </div>
-
-//           {/* ✅ PAY RENT FORM (ONLY FOR RENT) */}
-//           {isRentProperty && showPayRent && (
-//             <form
-//               onSubmit={handleSubmit}
-//               className="mt-10 p-8 bg-gray-100 dark:bg-gray-700 rounded-xl"
-//             >
-//               <h2 className="text-2xl font-bold mb-6 text-center">
-//                 Pay Rent
-//               </h2>
-
-//               <input
-//                 type="text"
-//                 placeholder="Full Name"
-//                 required
-//                 className="w-full mb-4 p-3 rounded"
-//                 onChange={(e) =>
-//                   setFormData({ ...formData, name: e.target.value })
-//                 }
-//               />
-
-//               <input
-//                 type="email"
-//                 placeholder="Email"
-//                 required
-//                 className="w-full mb-4 p-3 rounded"
-//                 onChange={(e) =>
-//                   setFormData({ ...formData, email: e.target.value })
-//                 }
-//               />
-
-//               <div className="flex gap-4 mb-4">
-//                 <select
-//                   value={months}
-//                   onChange={(e) => setMonths(Number(e.target.value))}
-//                   className="w-1/2 p-3 rounded"
-//                 >
-//                   {[...Array(12)].map((_, i) => (
-//                     <option key={i + 1} value={i + 1}>
-//                       {i + 1} Month(s)
-//                     </option>
-//                   ))}
-//                 </select>
-
-//                 <select
-//                   value={paymentMethod}
-//                   onChange={(e) => setPaymentMethod(e.target.value)}
-//                   className="w-1/2 p-3 rounded"
-//                 >
-//                   <option>GPay</option>
-//                   <option>PhonePe</option>
-//                   <option>UPI</option>
-//                   <option>COD</option>
-//                 </select>
-//               </div>
-
-//               <div className="text-center font-bold text-xl mb-6">
-//                 Total: ₹{totalPrice}
-//               </div>
-
-//               <button
-//                 type="submit"
-//                 className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-//               >
-//                 Continue Payment
-//               </button>
-//             </form>
-//           )}
-
-//           {/* BACK */}
-//           <div className="text-center mt-8">
-//             <button
-//               onClick={goBack}
-//               className="text-gray-500 hover:text-blue-600 underline"
-//             >
-//               ← Go Back
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default PropertyDetail
-
-
-
-
-
-
-
-
-
-
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import config from "../config"
-import { Heart, Bed, Bath, MapPin } from "lucide-react"
+import { getImageUrl } from "../utils/getImageUrl"
+import { Heart, Bed, Bath, MapPin, Layers, Video, ArrowLeft, CheckCircle2 } from "lucide-react"
 
 const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   if (!property) return null
 
   const [liked, setLiked] = useState(false)
-  const [showPayRent, setShowPayRent] = useState(false)
-
-  const [months, setMonths] = useState(1)
-  const [paymentMethod, setPaymentMethod] = useState("GPay")
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-  })
-
-  // ✅ Fetch Fresh Property Data to Checking Real-time Status
   const [currentProperty, setCurrentProperty] = useState(property)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   useEffect(() => {
     const fetchLatestProperty = async () => {
@@ -333,248 +31,142 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
     }
   }, [property._id])
 
-  // ✅ Detect Rent Property
+  const imageList = currentProperty.images && currentProperty.images.length > 0 ? currentProperty.images : [currentProperty.image]
   const isRentProperty = currentProperty.source === "rent"
+  const actionText = isRentProperty ? "Pay Rent" : "Acquire Property"
 
-  const actionText = isRentProperty ? "Pay Rent" : "Buy Now"
-  const totalPrice = Number(currentProperty.price) * months
-
-  // ✅ Button Action Logic (Rent / Buy)
   const handleAction = () => {
-    // 🚫 CHECK STATUS FIRST
     if (currentProperty.status === "Booked") {
-      alert("⚠️ This Property Already Taken (Booked) \n\n You cannot buy this property again.")
+      alert("⚠️ This Property is Already Acquired / Booked.")
       return
     }
     if (currentProperty.status === "Rented") {
-      alert("⚠️ This Property Already Rented")
+      alert("⚠️ This Property is Currently Rented.")
       return
     }
 
     const token = localStorage.getItem("token")
-
-    // 🔒 If user not logged in → redirect to login
     if (!token) {
       setCurrentPage("login")
       return
     }
 
-    // 🏠 RENT FLOW
     if (isRentProperty) {
       setCurrentPage("pay-rent")
       return
     }
 
-    // 🛒 BUY FLOW
     setCurrentPage("buy-payment")
   }
 
-  // ✅ Rent Payment Submit
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    const payload = {
-      name: formData.name,
-      email: formData.email,
-      propertyName: currentProperty.name,
-      address: currentProperty.address || currentProperty.area,
-      rentPerMonth: Number(currentProperty.price),
-      months,
-      totalPrice,
-      paymentMethod,
-    }
-
-    try {
-      const res = await fetch(`${config.API_URL}/api/rent/pay`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        alert(data.message || "Payment failed")
-        return
-      }
-
-      alert("✅ Rent payment saved successfully")
-      setShowPayRent(false)
-    } catch (error) {
-      console.error(error)
-      alert("❌ Server error")
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-10">
-      <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-
-        {/* IMAGE */}
-        <div className="relative">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center transition-colors duration-300">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-5xl w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden text-white"
+      >
+        
+        {/* Main Image Gallery Container */}
+        <div className="relative h-[440px] w-full bg-slate-950 overflow-hidden">
           <img
-            src={
-              !currentProperty.image
-                ? "/placeholder.svg"
-                : currentProperty.image?.startsWith("http") || currentProperty.image?.startsWith("data:") || currentProperty.image?.startsWith("blob:")
-                  ? (currentProperty.image.includes("localhost:5000") ? currentProperty.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL) : currentProperty.image)
-                  : currentProperty.image?.startsWith("/assets") || currentProperty.image?.startsWith("assets")
-                    ? (currentProperty.image.startsWith("/") ? currentProperty.image : `/${currentProperty.image}`)
-                    : currentProperty.image?.startsWith("/uploads")
-                      ? `${config.API_URL}${currentProperty.image}`
-                      : `${config.API_URL}/uploads/${currentProperty.image}`
-            }
+            src={getImageUrl(imageList[selectedImageIndex] || currentProperty.image)}
             alt={currentProperty.name}
             onError={(e) => {
               e.target.onerror = null
               e.target.src = "/placeholder.svg"
             }}
-            className="w-full h-[420px] object-cover"
+            className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30" />
 
+          {/* Status Badge */}
           {currentProperty.status && (
-            <div className={`absolute top-6 left-6 px-4 py-2 rounded-full text-white font-bold
-              ${currentProperty.status === "For Rent" ? "bg-green-500" : "bg-blue-500"}`}>
-              {currentProperty.status}
+            <div className="absolute top-6 left-6">
+              <span className={`px-4 py-1.5 rounded-full text-xs font-extrabold text-white tracking-widest uppercase shadow-xl ${
+                currentProperty.status === "For Rent" ? "bg-emerald-600 border border-emerald-400/50" : "bg-gradient-to-r from-amber-500 to-yellow-600 border border-amber-300/50"
+              }`}>
+                {currentProperty.status}
+              </span>
             </div>
           )}
 
           <button
             onClick={() => setLiked(!liked)}
-            className="absolute top-6 right-6 p-3 rounded-full bg-white shadow"
+            className="absolute top-6 right-6 p-3 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/20 hover:scale-110 transition-all shadow-xl"
           >
-            <Heart className={`w-6 h-6 ${liked ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+            <Heart className={`w-5 h-5 ${liked ? "fill-rose-500 text-rose-500" : "text-white"}`} />
           </button>
         </div>
 
-        {/* DETAILS */}
-        <div className="p-10">
-          <h1 className="text-4xl font-bold mb-4">{currentProperty.name}</h1>
-
-          <div className="flex items-center text-gray-600 mb-6">
-            <MapPin className="w-5 h-5 mr-2" />
-            {currentProperty.address || currentProperty.area}, Ahmedabad
-          </div>
-
-          <div className="flex justify-center gap-12 mb-8">
-            <div className="flex items-center gap-3">
-              <Bed className="w-6 h-6 text-blue-600" />
-              {currentProperty.bedrooms} Bedrooms
-            </div>
-            <div className="flex items-center gap-3">
-              <Bath className="w-6 h-6 text-blue-600" />
-              {currentProperty.bathrooms} Bathrooms
-            </div>
-          </div>
-
-          <div className="text-center mb-10">
-            <span className="text-5xl font-bold text-blue-600">
-              ₹{currentProperty.price}
-            </span>
-            {currentProperty.priceType && (
-              <span className="text-xl text-gray-500 ml-2">
-                /{currentProperty.priceType}
-              </span>
-            )}
-          </div>
-
-          {/* ACTION BUTTON */}
-          <div className="text-center mb-8">
-            <button
-              onClick={handleAction}
-              className={`px-16 py-5 text-xl font-bold text-white rounded-xl transition transform hover:scale-105 shadow-xl
-                ${(currentProperty.status === "Booked")
-                  ? "bg-gray-500 cursor-not-allowed hover:bg-gray-600" // Grey BG for Booked
-                  : (currentProperty.status === "Rented")
-                    ? "bg-gray-400 cursor-not-allowed hover:bg-gray-500"
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                }`}
-            >
-              {currentProperty.status === "Booked" ? "Booked (Sold Out)" : currentProperty.status === "Rented" ? "Rented ❌" : actionText}
-            </button>
-          </div>
-
-          {/* ✅ PAY RENT FORM (ONLY FOR RENT) */}
-          {isRentProperty && showPayRent && (
-            <form
-              onSubmit={handleSubmit}
-              className="mt-10 p-8 bg-gray-100 dark:bg-gray-700 rounded-xl"
-            >
-              <h2 className="text-2xl font-bold mb-6 text-center">
-                Pay Rent
-              </h2>
-
-              <input
-                type="text"
-                placeholder="Full Name"
-                required
-                className="w-full mb-4 p-3 rounded"
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-
-              <input
-                type="email"
-                placeholder="Email"
-                required
-                className="w-full mb-4 p-3 rounded"
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-
-              <div className="flex gap-4 mb-4">
-                <select
-                  value={months}
-                  onChange={(e) => setMonths(Number(e.target.value))}
-                  className="w-1/2 p-3 rounded"
-                >
-                  {[...Array(12)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} Month(s)
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-1/2 p-3 rounded"
-                >
-                  <option>GPay</option>
-                  <option>PhonePe</option>
-                  <option>UPI</option>
-                  <option>COD</option>
-                </select>
-              </div>
-
-              <div className="text-center font-bold text-xl mb-6">
-                Total: ₹{totalPrice}
-              </div>
-
+        {/* Thumbnail Selector (if multiple images) */}
+        {imageList.length > 1 && (
+          <div className="flex gap-3 px-8 py-3 bg-slate-950/90 border-b border-amber-500/20 overflow-x-auto">
+            {imageList.map((img, idx) => (
               <button
-                type="submit"
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                key={idx}
+                onClick={() => setSelectedImageIndex(idx)}
+                className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImageIndex === idx ? 'border-amber-400 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
-                Continue Payment
+                <img src={getImageUrl(img)} alt="thumb" className="w-full h-full object-cover" />
               </button>
-            </form>
-          )}
+            ))}
+          </div>
+        )}
 
-          {/* BACK */}
-          <div className="text-center mt-8">
+        {/* DETAILS BODY */}
+        <div className="p-8 sm:p-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2">{currentProperty.name}</h1>
+              <div className="flex items-center text-amber-300 text-sm font-semibold">
+                <MapPin className="w-4 h-4 mr-1 text-amber-400 flex-shrink-0" />
+                <span>{currentProperty.address || currentProperty.area}, Ahmedabad</span>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                ₹{currentProperty.price}
+              </span>
+              {currentProperty.priceType && (
+                <span className="text-xs text-amber-200/70 ml-1">/{currentProperty.priceType}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 mb-8 text-sm font-semibold">
+            <div className="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-xl border border-amber-500/20 text-gray-200">
+              <Bed className="w-5 h-5 text-amber-400" />
+              <span>{currentProperty.bedrooms} Bedrooms</span>
+            </div>
+            <div className="flex items-center gap-2 bg-slate-900 px-4 py-2 rounded-xl border border-amber-500/20 text-gray-200">
+              <Bath className="w-5 h-5 text-amber-400" />
+              <span>{currentProperty.bathrooms} Bathrooms</span>
+            </div>
+          </div>
+
+          {/* Action Button */}
+          <div className="pt-6 border-t border-amber-500/20 flex flex-col sm:flex-row gap-4 justify-between items-center">
             <button
               onClick={goBack}
-              className="text-gray-500 hover:text-blue-600 underline"
+              className="flex items-center gap-2 text-amber-300 hover:text-amber-400 text-sm font-bold transition-colors"
             >
-              ← Go Back
+              <ArrowLeft size={16} /> Back to Properties
             </button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleAction}
+              className="w-full sm:w-auto px-10 py-4 text-base font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 rounded-2xl shadow-xl hover:shadow-[0_5px_25px_rgba(212,175,55,0.4)] transition-all"
+            >
+              {currentProperty.status === "Booked" ? "Booked (Sold Out)" : currentProperty.status === "Rented" ? "Rented ❌" : actionText}
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

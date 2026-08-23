@@ -1,12 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import config from "../config"
 import { useAuth } from "../context/AuthContext"
+import { getImageUrl } from "../utils/getImageUrl"
+import { ShieldCheck, CreditCard, Sparkles } from "lucide-react"
 
 const BuyPayment = ({ property, setCurrentPage }) => {
     const { user } = useAuth()
-    const [paymentMethod, setPaymentMethod] = useState("COD")
+    const [paymentMethod, setPaymentMethod] = useState("BankTransfer")
     const [processing, setProcessing] = useState(false)
 
     useEffect(() => {
@@ -16,7 +19,12 @@ const BuyPayment = ({ property, setCurrentPage }) => {
         }
     }, [user, setCurrentPage])
 
-    if (!user) return null
+    if (!user || !property) return null
+
+    const price = property.priceValue || 15000000
+    const tax = price * 0.05
+    const bookingFee = 50000
+    const total = price + tax + bookingFee
 
     const handlePay = async () => {
         setProcessing(true)
@@ -42,7 +50,7 @@ const BuyPayment = ({ property, setCurrentPage }) => {
             }
 
             const data = await response.json()
-            alert(`✅ ${data.message}`)
+            alert(`🎉 ${data.message}`)
             setCurrentPage("explore")
         } catch (error) {
             console.error("Payment error:", error)
@@ -52,97 +60,97 @@ const BuyPayment = ({ property, setCurrentPage }) => {
         }
     }
 
-    // Fees calculation (Mock)
-    const price = property.priceValue
-    const tax = price * 0.05 // 5% Tax
-    const bookingFee = 50000
-    const total = price + tax + bookingFee
-
     return (
-        <div className="min-h-screen flex justify-center items-center py-12 px-4 bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-
-                {/* Left: Property Details */}
-                <div className="md:w-1/2 p-8 bg-gradient-to-br from-blue-600 to-purple-700 text-white flex flex-col justify-between">
+        <div className="min-h-screen flex justify-center items-center py-12 px-4 transition-colors duration-300">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-4xl w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden flex flex-col md:flex-row text-white"
+            >
+                {/* Left Info */}
+                <div className="md:w-1/2 p-8 sm:p-10 bg-slate-900/90 border-r border-amber-500/20 flex flex-col justify-between">
                     <div>
-                        <h2 className="text-3xl font-bold mb-2">{property.name}</h2>
-                        <p className="opacity-90 mb-6 flex items-center gap-2">
-                            📍 {property.address}
-                        </p>
-                        <img src={property.image} alt={property.name} className="w-full h-48 object-cover rounded-lg shadow-lg mb-6 border-4 border-white/20" />
+                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest mb-4 inline-block">
+                            Property Acquisition
+                        </span>
+                        <h2 className="text-3xl font-extrabold mb-2 text-white">{property.name}</h2>
+                        <p className="text-xs text-amber-200/80 mb-6">📍 {property.address || property.area}</p>
+                        <img src={getImageUrl(property.image)} alt={property.name} className="w-full h-48 object-cover rounded-2xl shadow-xl mb-6 border border-amber-500/20" />
 
-                        <div className="space-y-2 text-sm opacity-90">
+                        <div className="space-y-1 text-xs text-gray-300 font-semibold">
                             <p>🛏 {property.bedrooms} Bedrooms</p>
                             <p>🚿 {property.bathrooms} Bathrooms</p>
-                            <p>📏 {property.area}</p>
                         </div>
                     </div>
-                    <div className="mt-8">
-                        <p className="text-xs uppercase tracking-wider opacity-70">Total Amount</p>
-                        <p className="text-4xl font-bold">₹{(total).toLocaleString()}</p>
+
+                    <div className="mt-8 pt-4 border-t border-amber-500/20">
+                        <p className="text-[10px] uppercase tracking-widest text-amber-300 font-bold">Total Acquisition Cost</p>
+                        <p className="text-4xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">₹{total.toLocaleString()}</p>
                     </div>
                 </div>
 
-                {/* Right: Payment Form */}
-                <div className="md:w-1/2 p-8 bg-white dark:bg-gray-800">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Confirm Purchase</h3>
+                {/* Right Form */}
+                <div className="md:w-1/2 p-8 sm:p-10 flex flex-col justify-center">
+                    <h3 className="text-2xl font-extrabold text-amber-300 mb-6 flex items-center gap-2">
+                        <CreditCard size={22} /> Confirm Acquisition
+                    </h3>
 
-                    {/* User Info */}
-                    <div className="mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Buyer</p>
-                        <p className="font-semibold text-gray-900 dark:text-white">{user.name}</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{user.email}</p>
+                    <div className="mb-6 bg-slate-900 p-4 rounded-2xl border border-amber-500/20 text-xs">
+                        <p className="text-amber-400 font-bold uppercase tracking-wider mb-1">Buyer Details</p>
+                        <p className="font-extrabold text-white text-sm">{user.name}</p>
+                        <p className="text-gray-300">{user.email}</p>
                     </div>
 
-                    {/* Price Breakdown */}
-                    <div className="space-y-3 mb-8 border-t border-b border-gray-100 dark:border-gray-700 py-4">
-                        <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                            <span>Property Price</span>
-                            <span>₹{price.toLocaleString()}</span>
+                    <div className="space-y-3 mb-8 border-t border-b border-amber-500/20 py-4 text-xs font-semibold">
+                        <div className="flex justify-between text-gray-300">
+                            <span>Base Property Value</span>
+                            <span className="font-bold text-white">₹{price.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between text-gray-600 dark:text-gray-400">
+                        <div className="flex justify-between text-gray-300">
                             <span>Govt. Tax (5%)</span>
-                            <span>₹{tax.toLocaleString()}</span>
+                            <span className="font-bold text-white">₹{tax.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                            <span>Booking Fee</span>
-                            <span>₹{bookingFee.toLocaleString()}</span>
+                        <div className="flex justify-between text-gray-300">
+                            <span>Registration & Escrow Fee</span>
+                            <span className="font-bold text-white">₹{bookingFee.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-lg text-gray-900 dark:text-white pt-2">
-                            <span>Total</span>
+                        <div className="flex justify-between font-extrabold text-base text-amber-300 pt-2 border-t border-amber-500/20">
+                            <span>Total Payable</span>
                             <span>₹{total.toLocaleString()}</span>
                         </div>
                     </div>
 
-                    {/* Payment Method */}
-                    <div className="mb-8">
-                        <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">Payment Method</label>
+                    <div className="mb-6">
+                        <label className="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-2">Select Payment Option</label>
                         <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="w-full p-3 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full p-3.5 bg-slate-900 border border-amber-500/20 rounded-xl outline-none text-white font-bold text-xs"
                         >
-                            <option value="COD">Cash / Cheque</option>
-                            <option value="BankTransfer">Bank Transfer</option>
-                            <option value="UPI">UPI (GPay/PhonePe)</option>
+                            <option value="BankTransfer" className="bg-slate-950">Wire Bank Transfer</option>
+                            <option value="UPI" className="bg-slate-950">UPI (GPay / PhonePe / BHIM)</option>
+                            <option value="COD" className="bg-slate-950">Cheque / Cash Deposit</option>
                         </select>
                     </div>
 
-                    <button
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={handlePay}
                         disabled={processing}
-                        className="w-full py-4 bg-gray-900 dark:bg-blue-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:cursor-not-allowed flex justify-center"
+                        className="w-full py-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 font-extrabold rounded-2xl shadow-xl transition-all disabled:opacity-50 text-base"
                     >
-                        {processing ? "Processing..." : `Pay ₹${total.toLocaleString()}`}
-                    </button>
+                        {processing ? "Processing Transfer..." : `Pay ₹${total.toLocaleString()}`}
+                    </motion.button>
                     <button
                         onClick={() => setCurrentPage("explore")}
-                        className="w-full mt-3 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition"
+                        className="w-full mt-3 py-2 text-xs text-amber-200/70 hover:text-white transition font-bold"
                     >
-                        Cancel
+                        Cancel Transaction
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 }
