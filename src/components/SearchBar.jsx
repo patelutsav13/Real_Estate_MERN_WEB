@@ -29,19 +29,19 @@ const SearchBar = ({ onSearch }) => {
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl transform hover:scale-[1.02] transition-all duration-300">
+    <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 bg-slate-950/80 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl transition-all duration-300 text-white">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Area Dropdown */}
         <div className="relative group">
-          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-400" />
           <select
             value={selectedArea}
             onChange={(e) => setSelectedArea(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200 transition-all duration-300"
+            className="w-full pl-12 pr-4 py-3.5 bg-slate-900/90 border border-amber-500/20 rounded-2xl outline-none text-white text-sm font-semibold"
           >
-            <option value="">Select Area</option>
+            <option value="" className="bg-slate-950 text-white">Select Area</option>
             {areas.map((area) => (
-              <option key={area} value={area}>
+              <option key={area} value={area} className="bg-slate-950 text-white">
                 {area}
               </option>
             ))}
@@ -50,15 +50,15 @@ const SearchBar = ({ onSearch }) => {
 
         {/* Property Type Dropdown */}
         <div className="relative group">
-          <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <Home className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-400" />
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200 transition-all duration-300"
+            className="w-full pl-12 pr-4 py-3.5 bg-slate-900/90 border border-amber-500/20 rounded-2xl outline-none text-white text-sm font-semibold"
           >
-            <option value="">Property Type</option>
+            <option value="" className="bg-slate-950 text-white">Property Type</option>
             {propertyTypes.map((type) => (
-              <option key={type} value={type}>
+              <option key={type} value={type} className="bg-slate-950 text-white">
                 {type}
               </option>
             ))}
@@ -68,10 +68,10 @@ const SearchBar = ({ onSearch }) => {
         {/* Search Button */}
         <button
           onClick={handleSearch}
-          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+          className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 px-6 py-3.5 rounded-2xl font-extrabold shadow-lg hover:shadow-[0_5px_20px_rgba(212,175,55,0.4)] hover:scale-105 transition-all duration-300"
         >
           <Search className="w-5 h-5" />
-          <span className="font-semibold">Search</span>
+          <span>Search Properties</span>
         </button>
       </div>
     </div>
