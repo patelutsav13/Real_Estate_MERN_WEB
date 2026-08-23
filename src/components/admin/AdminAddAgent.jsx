@@ -1,7 +1,7 @@
 import { useState } from "react"
 import axios from "axios"
 import { API } from "../../config"
-import { Upload, Sparkles, UserCheck } from "lucide-react"
+import { Upload, Sparkles, Link as LinkIcon } from "lucide-react"
 
 const AdminAddAgent = ({ setActiveTab }) => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,8 @@ const AdminAddAgent = ({ setActiveTab }) => {
     title: "",
     address: "",
     experience: "",
-    expertise: ""
+    expertise: "",
+    imageUrl: ""
   })
   const [imageFile, setImageFile] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -24,17 +25,14 @@ const AdminAddAgent = ({ setActiveTab }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!imageFile) {
-      alert("Please upload an agent photo.")
-      return
-    }
-
     setLoading(true)
     const token = localStorage.getItem("token")
 
     const data = new FormData()
     Object.keys(formData).forEach(key => data.append(key, formData[key]))
-    data.append("image", imageFile)
+    if (imageFile) {
+      data.append("image", imageFile)
+    }
 
     try {
       await axios.post(`${API}/api/admin/add-agent`, data, {
@@ -44,9 +42,9 @@ const AdminAddAgent = ({ setActiveTab }) => {
         }
       })
       alert("🎉 Certified Agent Account Created Successfully!")
-      setFormData({ name: "", email: "", phone: "", password: "", title: "", address: "", experience: "", expertise: "" })
+      setFormData({ name: "", email: "", phone: "", password: "", title: "", address: "", experience: "", expertise: "", imageUrl: "" })
       setImageFile(null)
-      setActiveTab("users")
+      if (setActiveTab) setActiveTab("users")
     } catch (error) {
       console.error(error)
       alert(error.response?.data?.message || "Failed to create agent")
@@ -149,17 +147,30 @@ const AdminAddAgent = ({ setActiveTab }) => {
             />
           </div>
 
-          <div className="border border-amber-500/30 rounded-2xl p-6 text-center bg-slate-900/60">
-            <Upload className="w-8 h-8 mx-auto text-amber-400 mb-2" />
-            <label className="cursor-pointer">
-              <span className="text-amber-300 font-extrabold text-sm hover:underline">Upload Agent Profile Photo</span>
-              <input type="file" className="hidden" onChange={e => setImageFile(e.target.files[0])} accept="image/*" />
-            </label>
-            {imageFile ? (
-              <p className="text-xs text-emerald-400 font-bold mt-2">{imageFile.name}</p>
-            ) : (
-              <p className="text-[10px] text-gray-400 mt-1">PNG, JPG, WEBP (MAX. 5MB)</p>
-            )}
+          <div className="border border-amber-500/30 rounded-2xl p-6 bg-slate-900/60 space-y-3">
+            <label className="font-bold text-amber-300 uppercase text-xs tracking-wider block">Agent Profile Image</label>
+            <div className="text-center p-4 border border-dashed border-amber-500/30 rounded-xl bg-slate-950">
+              <Upload className="w-6 h-6 mx-auto text-amber-400 mb-2" />
+              <label className="cursor-pointer">
+                <span className="text-amber-300 font-extrabold text-xs hover:underline">Select Image File (PNG, JPG, WEBP)</span>
+                <input type="file" className="hidden" onChange={e => setImageFile(e.target.files[0])} accept="image/*" />
+              </label>
+              {imageFile && <p className="text-xs text-emerald-400 font-bold mt-2">{imageFile.name}</p>}
+            </div>
+
+            <div className="pt-2">
+              <label className="text-xs text-gray-300 flex items-center gap-1 mb-1 font-bold">
+                <LinkIcon size={14} /> Option B: Direct Image Web URL
+              </label>
+              <input
+                type="url"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                placeholder="https://images.unsplash.com/photo-..."
+                className="w-full bg-slate-950 border border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-xs text-white"
+              />
+            </div>
           </div>
 
           <button
