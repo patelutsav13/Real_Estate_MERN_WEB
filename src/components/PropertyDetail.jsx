@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import config from "../config"
 import { getImageUrl } from "../utils/getImageUrl"
-import { Heart, Bed, Bath, MapPin, Layers, Video, ArrowLeft, X, Play } from "lucide-react"
+import { Heart, Bed, Bath, MapPin, Layers, Video, ArrowLeft, X, Play, ChevronLeft, ChevronRight } from "lucide-react"
 
 const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   if (!property) return null
@@ -13,6 +13,7 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   const [currentProperty, setCurrentProperty] = useState(property)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
+  const [isAutoPlay, setIsAutoPlay] = useState(true)
 
   useEffect(() => {
     const fetchLatestProperty = async () => {
@@ -36,6 +37,27 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   const isRentProperty = currentProperty.source === "rent"
   const actionText = isRentProperty ? "Pay Rent" : "Acquire Property"
   const hasVideo = Boolean(currentProperty.video)
+
+  // Auto-slide images every 3.5 seconds if multiple images exist
+  useEffect(() => {
+    if (!isAutoPlay || imageList.length <= 1) return
+
+    const timer = setInterval(() => {
+      setSelectedImageIndex((prev) => (prev + 1) % imageList.length)
+    }, 3500)
+
+    return () => clearInterval(timer)
+  }, [isAutoPlay, imageList.length])
+
+  const nextImage = () => {
+    setIsAutoPlay(false)
+    setSelectedImageIndex((prev) => (prev + 1) % imageList.length)
+  }
+
+  const prevImage = () => {
+    setIsAutoPlay(false)
+    setSelectedImageIndex((prev) => (prev - 1 + imageList.length) % imageList.length)
+  }
 
   const handleAction = () => {
     if (currentProperty.status === "Booked") {
@@ -70,18 +92,41 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
         className="max-w-5xl w-full bg-slate-950/85 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden text-white"
       >
         
-        {/* Main Image Gallery Container */}
-        <div className="relative h-[460px] w-full bg-slate-950 overflow-hidden">
+        {/* Main Image Gallery Container with Auto Slider */}
+        <div 
+          className="relative h-[460px] w-full bg-slate-950 overflow-hidden group"
+          onMouseEnter={() => setIsAutoPlay(false)}
+          onMouseLeave={() => setIsAutoPlay(true)}
+        >
           <img
+            key={selectedImageIndex}
             src={getImageUrl(imageList[selectedImageIndex] || currentProperty.image)}
             alt={currentProperty.name}
             onError={(e) => {
               e.target.onerror = null
               e.target.src = "/placeholder.svg"
             }}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-all duration-700 ease-in-out"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30" />
+
+          {/* Slider Prev & Next Buttons */}
+          {imageList.length > 1 && (
+            <>
+              <button
+                onClick={prevImage}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/70 border border-amber-500/30 text-amber-400 opacity-80 group-hover:opacity-100 hover:scale-110 transition-all shadow-xl"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/70 border border-amber-500/30 text-amber-400 opacity-80 group-hover:opacity-100 hover:scale-110 transition-all shadow-xl"
+              >
+                <ChevronRight size={22} />
+              </button>
+            </>
+          )}
 
           {/* Status Badge */}
           {currentProperty.status && (
@@ -124,8 +169,11 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
             {imageList.map((img, idx) => (
               <button
                 key={idx}
-                onClick={() => setSelectedImageIndex(idx)}
-                className={`relative w-24 h-16 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImageIndex === idx ? 'border-amber-400 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                onClick={() => {
+                  setIsAutoPlay(false)
+                  setSelectedImageIndex(idx)
+                }}
+                className={`relative w-24 h-16 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImageIndex === idx ? 'border-amber-400 scale-105 shadow-lg ring-2 ring-amber-400/50' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
                 <img src={getImageUrl(img)} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
               </button>
@@ -170,6 +218,25 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
             <div className="mb-8 p-6 bg-slate-900/90 rounded-2xl border border-amber-500/20 text-gray-300 text-sm leading-relaxed">
               <h3 className="text-amber-300 font-extrabold mb-2 uppercase text-xs tracking-wider">Property Description</h3>
               <p>{currentProperty.description}</p>
+            </div>
+          )}
+
+          {/* Video Tour Banner (If Video Exists) */}
+          {hasVideo && (
+            <div className="mb-8 p-6 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 rounded-2xl border border-rose-500/30 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Video className="w-8 h-8 text-rose-500 animate-pulse" />
+                <div>
+                  <h4 className="text-white font-extrabold text-sm">Virtual Video Tour Available</h4>
+                  <p className="text-xs text-gray-400">Experience high-definition video walkthrough of this asset.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsVideoModalOpen(true)}
+                className="px-6 py-3 bg-rose-600 hover:bg-rose-500 text-white font-extrabold rounded-xl text-xs flex items-center gap-2 shadow-lg hover:scale-105 transition-all"
+              >
+                <Play size={14} className="fill-white" /> Watch Now
+              </button>
             </div>
           )}
 
