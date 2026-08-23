@@ -20,24 +20,24 @@ const FilterPanel = ({ onFilter }) => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       {/* Filter Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-5 py-2.5 bg-slate-950/80 backdrop-blur-xl border border-amber-500/30 text-amber-300 rounded-2xl hover:border-amber-400/60 shadow-lg transition-all duration-300 font-bold"
+        className="flex items-center space-x-2 px-5 py-2.5 bg-slate-950/90 backdrop-blur-xl border border-amber-500/40 text-amber-300 rounded-2xl hover:border-amber-400 shadow-2xl transition-all duration-300 font-extrabold"
       >
         <SlidersHorizontal className="w-5 h-5 text-amber-400" />
         <span>Filters</span>
       </button>
 
-      {/* Filter Panel */}
+      {/* Filter Panel Dropdown Overlay */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-slate-950/95 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl z-50 p-6 text-white animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-extrabold text-amber-300">Filters</h3>
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-slate-950/95 backdrop-blur-2xl rounded-3xl border border-amber-500/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-[100] p-6 text-white animate-fade-in">
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-amber-500/20">
+            <h3 className="text-lg font-extrabold text-amber-300">Filter Properties</h3>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-slate-900 rounded-lg transition-all duration-300 text-amber-400"
+              className="p-1.5 hover:bg-slate-900 rounded-xl transition-all text-amber-400"
             >
               <X className="w-5 h-5" />
             </button>
@@ -52,14 +52,14 @@ const FilterPanel = ({ onFilter }) => {
                 placeholder="Min Price"
                 value={priceRange[0]}
                 onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                className="w-full px-3 py-2 bg-slate-900 border border-amber-500/20 rounded-xl outline-none text-white text-sm"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-amber-500/20 rounded-xl outline-none text-white text-sm"
               />
               <input
                 type="number"
                 placeholder="Max Price"
                 value={priceRange[1]}
                 onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                className="w-full px-3 py-2 bg-slate-900 border border-amber-500/20 rounded-xl outline-none text-white text-sm"
+                className="w-full px-4 py-2.5 bg-slate-900 border border-amber-500/20 rounded-xl outline-none text-white text-sm"
               />
             </div>
           </div>
@@ -72,9 +72,9 @@ const FilterPanel = ({ onFilter }) => {
                 <button
                   key={type}
                   onClick={() => handleTypeToggle(type)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                     selectedTypes.includes(type)
-                      ? "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950"
+                      ? "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 shadow-md"
                       : "bg-slate-900 text-gray-300 hover:bg-slate-800 border border-amber-500/20"
                   }`}
                 >
@@ -87,7 +87,7 @@ const FilterPanel = ({ onFilter }) => {
           {/* Apply Button */}
           <button
             onClick={applyFilters}
-            className="w-full py-3 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 font-extrabold rounded-2xl shadow-lg hover:scale-105 transition-all duration-300 text-sm"
+            className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 font-extrabold rounded-2xl shadow-xl hover:scale-105 transition-all text-sm"
           >
             Apply Filters
           </button>

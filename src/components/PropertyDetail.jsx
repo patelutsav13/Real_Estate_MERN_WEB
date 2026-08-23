@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import config from "../config"
 import { getImageUrl } from "../utils/getImageUrl"
-import { Heart, Bed, Bath, MapPin, Layers, Video, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { Heart, Bed, Bath, MapPin, Layers, Video, ArrowLeft, X, Play } from "lucide-react"
 
 const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   if (!property) return null
@@ -12,6 +12,7 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   const [liked, setLiked] = useState(false)
   const [currentProperty, setCurrentProperty] = useState(property)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchLatestProperty = async () => {
@@ -34,6 +35,7 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
   const imageList = currentProperty.images && currentProperty.images.length > 0 ? currentProperty.images : [currentProperty.image]
   const isRentProperty = currentProperty.source === "rent"
   const actionText = isRentProperty ? "Pay Rent" : "Acquire Property"
+  const hasVideo = Boolean(currentProperty.video)
 
   const handleAction = () => {
     if (currentProperty.status === "Booked") {
@@ -65,11 +67,11 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="max-w-5xl w-full bg-slate-950/80 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden text-white"
+        className="max-w-5xl w-full bg-slate-950/85 backdrop-blur-2xl rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden text-white"
       >
         
         {/* Main Image Gallery Container */}
-        <div className="relative h-[440px] w-full bg-slate-950 overflow-hidden">
+        <div className="relative h-[460px] w-full bg-slate-950 overflow-hidden">
           <img
             src={getImageUrl(imageList[selectedImageIndex] || currentProperty.image)}
             alt={currentProperty.name}
@@ -83,12 +85,22 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
 
           {/* Status Badge */}
           {currentProperty.status && (
-            <div className="absolute top-6 left-6">
+            <div className="absolute top-6 left-6 flex items-center gap-3">
               <span className={`px-4 py-1.5 rounded-full text-xs font-extrabold text-white tracking-widest uppercase shadow-xl ${
                 currentProperty.status === "For Rent" ? "bg-emerald-600 border border-emerald-400/50" : "bg-gradient-to-r from-amber-500 to-yellow-600 border border-amber-300/50"
               }`}>
                 {currentProperty.status}
               </span>
+
+              {hasVideo && (
+                <button
+                  onClick={() => setIsVideoModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-full text-xs font-extrabold shadow-lg animate-pulse"
+                >
+                  <Video size={14} />
+                  <span>Watch Video Tour</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -98,18 +110,24 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
           >
             <Heart className={`w-5 h-5 ${liked ? "fill-rose-500 text-rose-500" : "text-white"}`} />
           </button>
+
+          {/* Photo Counter */}
+          <div className="absolute bottom-4 right-6 bg-slate-950/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+            <Layers size={14} />
+            <span>Image {selectedImageIndex + 1} of {imageList.length}</span>
+          </div>
         </div>
 
-        {/* Thumbnail Selector (if multiple images) */}
+        {/* Multi-Image Thumbnails Grid (1 to 5 Images) */}
         {imageList.length > 1 && (
-          <div className="flex gap-3 px-8 py-3 bg-slate-950/90 border-b border-amber-500/20 overflow-x-auto">
+          <div className="flex gap-3 px-8 py-4 bg-slate-950/90 border-b border-amber-500/20 overflow-x-auto">
             {imageList.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedImageIndex(idx)}
-                className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImageIndex === idx ? 'border-amber-400 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                className={`relative w-24 h-16 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${selectedImageIndex === idx ? 'border-amber-400 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
               >
-                <img src={getImageUrl(img)} alt="thumb" className="w-full h-full object-cover" />
+                <img src={getImageUrl(img)} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -147,6 +165,14 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
             </div>
           </div>
 
+          {/* Description */}
+          {currentProperty.description && (
+            <div className="mb-8 p-6 bg-slate-900/90 rounded-2xl border border-amber-500/20 text-gray-300 text-sm leading-relaxed">
+              <h3 className="text-amber-300 font-extrabold mb-2 uppercase text-xs tracking-wider">Property Description</h3>
+              <p>{currentProperty.description}</p>
+            </div>
+          )}
+
           {/* Action Button */}
           <div className="pt-6 border-t border-amber-500/20 flex flex-col sm:flex-row gap-4 justify-between items-center">
             <button
@@ -167,6 +193,50 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
           </div>
         </div>
       </motion.div>
+
+      {/* VIDEO TOUR MODAL OVERLAY */}
+      <AnimatePresence>
+        {isVideoModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4"
+          >
+            <div className="relative w-full max-w-4xl bg-slate-950 rounded-3xl border border-amber-500/40 overflow-hidden p-4 shadow-2xl">
+              <div className="flex justify-between items-center mb-3 px-2">
+                <span className="font-extrabold text-amber-300 text-sm flex items-center gap-2">
+                  <Video size={16} /> Video Tour: {currentProperty.name}
+                </span>
+                <button
+                  onClick={() => setIsVideoModalOpen(false)}
+                  className="p-2 bg-slate-900 rounded-full text-amber-400 hover:bg-slate-800"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-amber-500/20">
+                {currentProperty.video?.startsWith("http") ? (
+                  <iframe
+                    src={currentProperty.video}
+                    title="Video Tour"
+                    className="w-full h-full border-0"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={getImageUrl(currentProperty.video)}
+                    controls
+                    autoPlay
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

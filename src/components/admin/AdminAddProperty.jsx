@@ -1,7 +1,7 @@
 import { useState } from "react"
 import axios from "axios"
 import { API } from "../../config"
-import { Upload, X, Video, Image as ImageIcon, Link as LinkIcon, CheckCircle2 } from "lucide-react"
+import { Upload, X, Video, Image as ImageIcon, Link as LinkIcon, CheckCircle2, Sparkles } from "lucide-react"
 
 const AdminAddProperty = ({ setActiveTab }) => {
   const [formData, setFormData] = useState({
@@ -23,18 +23,18 @@ const AdminAddProperty = ({ setActiveTab }) => {
   const [imagePreviews, setImagePreviews] = useState([])
   const [videoFile, setVideoFile] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  // Handle image files selection (supports all image extensions: PNG, JPG, WEBP, GIF, SVG, etc.)
   const handleImagesChange = (e) => {
     const selectedFiles = Array.from(e.target.files)
     if (selectedFiles.length === 0) return
 
     if (imageFiles.length + selectedFiles.length > 5) {
-      alert("⚠️ You can upload a maximum of 5 images per property.")
+      alert("⚠️ Maximum of 5 images allowed per property.")
       return
     }
 
@@ -63,14 +63,16 @@ const AdminAddProperty = ({ setActiveTab }) => {
     e.preventDefault()
 
     if (imageFiles.length < 1 && !formData.imageUrl.trim()) {
-      alert("⚠️ Please upload at least 1 image file OR provide a valid Image URL.")
+      alert("⚠️ Please upload at least 1 image file OR provide a direct Image URL.")
       return
     }
 
     setLoading(true)
-    const token = localStorage.getItem("token")
+    setSuccessMessage("")
 
+    const token = localStorage.getItem("token")
     const data = new FormData()
+
     Object.keys(formData).forEach(key => data.append(key, formData[key]))
 
     imageFiles.forEach(file => {
@@ -82,82 +84,96 @@ const AdminAddProperty = ({ setActiveTab }) => {
     }
 
     try {
-      await axios.post(`${API}/api/properties`, data, {
+      const res = await axios.post(`${API}/api/properties`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data"
         }
       })
-      alert("✅ Property Listed Successfully!")
-      setActiveTab("properties")
+
+      if (res.status === 201 || res.status === 200) {
+        setSuccessMessage("🎉 Property Published Successfully!")
+        alert("🎉 Property Published Successfully!")
+        setActiveTab("properties")
+      }
     } catch (error) {
-      console.error(error)
-      alert(error.response?.data?.message || "Failed to create property")
+      console.error("Error publishing property:", error)
+      alert(error.response?.data?.message || "Failed to publish property")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="animate-fade-in-up">
-      <h2 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-amber-400 dark:to-yellow-500 mb-6">
-        Add New Property
-      </h2>
+    <div className="animate-fade-in text-white">
+      <div className="flex items-center gap-3 mb-6">
+        <Sparkles className="w-8 h-8 text-amber-400" />
+        <h2 className="text-3xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+          Publish Luxury Property
+        </h2>
+      </div>
 
-      <div className="bg-white dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-gray-200 dark:border-amber-500/20 text-gray-900 dark:text-white">
+      {successMessage && (
+        <div className="mb-6 p-4 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 rounded-2xl flex items-center gap-3 font-bold text-sm">
+          <CheckCircle2 size={20} />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
+      <div className="bg-slate-950/80 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 border border-amber-500/30 shadow-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Title & Address */}
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider">Property Title *</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block mb-1">Property Title *</label>
               <input
                 type="text" name="name" required
                 value={formData.name} onChange={handleChange}
                 placeholder="e.g. Royal Palace Villa in Satellite"
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 dark:focus:ring-amber-400 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider">Address / Area *</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block mb-1">Address / Area *</label>
               <input
                 type="text" name="address" required
                 value={formData.address} onChange={handleChange}
                 placeholder="Satellite Road, Ahmedabad"
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 dark:focus:ring-amber-400 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm"
               />
             </div>
           </div>
 
           {/* Pricing */}
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider">Display Price *</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block mb-1">Display Price *</label>
               <input
                 type="text" name="price" required
                 value={formData.price} onChange={handleChange}
                 placeholder="e.g. 1.5 Cr or 45,000"
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 dark:focus:ring-amber-400 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider">Numeric Price (for filtering) *</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block mb-1">Numeric Price (for sorting) *</label>
               <input
                 type="number" name="priceValue" required
                 value={formData.priceValue} onChange={handleChange}
                 placeholder="15000000"
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 dark:focus:ring-amber-400 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm"
               />
             </div>
           </div>
 
-          {/* Details */}
+          {/* Specs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Type</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase block mb-1">Type</label>
               <select
                 name="type" value={formData.type} onChange={handleChange}
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-3 py-3 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-3 py-3 outline-none text-white text-xs font-bold"
               >
                 <option value="Apartment">Apartment</option>
                 <option value="House">House</option>
@@ -165,61 +181,59 @@ const AdminAddProperty = ({ setActiveTab }) => {
                 <option value="Office">Office</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Status</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase block mb-1">Status</label>
               <select
                 name="status" value={formData.status} onChange={handleChange}
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-3 py-3 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-3 py-3 outline-none text-white text-xs font-bold"
               >
                 <option value="For Sale">For Sale</option>
                 <option value="For Rent">For Rent</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Bedrooms</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase block mb-1">Bedrooms</label>
               <input
                 type="number" name="bedrooms"
                 value={formData.bedrooms} onChange={handleChange}
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-3 py-3 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-3 py-3 outline-none text-white text-xs font-bold"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase">Bathrooms</label>
+            <div>
+              <label className="text-xs font-bold text-amber-300 uppercase block mb-1">Bathrooms</label>
               <input
                 type="number" name="bathrooms"
                 value={formData.bathrooms} onChange={handleChange}
-                className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-3 py-3 outline-none"
+                className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-3 py-3 outline-none text-white text-xs font-bold"
               />
             </div>
           </div>
 
           {/* Description */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider">Description</label>
+          <div>
+            <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block mb-1">Description</label>
             <textarea
               name="description"
               value={formData.description} onChange={handleChange}
-              placeholder="Property description..."
-              className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none h-24"
+              placeholder="Luxury property details..."
+              className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm h-24"
             ></textarea>
           </div>
 
           {/* MULTI-IMAGE FILE UPLOAD OR IMAGE URL */}
-          <div className="border-2 border-dashed border-blue-200 dark:border-amber-500/30 rounded-2xl p-6 bg-gray-50 dark:bg-slate-950/60 space-y-4">
+          <div className="border border-amber-500/30 rounded-2xl p-6 bg-slate-900/60 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-blue-600 dark:text-amber-400 font-bold">
-                <ImageIcon size={20} />
-                <span>Property Images (File Upload or Image URL)</span>
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                <ImageIcon size={18} />
+                <span>Property Images (Upload up to 5 Images or Web URL)</span>
               </div>
-              <span className="text-xs text-gray-500 font-semibold">{imageFiles.length} / 5 Uploaded</span>
+              <span className="text-xs text-amber-400 font-bold">{imageFiles.length} / 5 Uploaded</span>
             </div>
 
-            {/* Option 1: File Upload (All Types: PNG, JPG, WEBP, GIF, SVG, etc.) */}
             <div>
-              <label className="cursor-pointer block border border-gray-300 dark:border-amber-500/20 hover:border-blue-500 dark:hover:border-amber-400 bg-white dark:bg-slate-900 p-6 rounded-xl text-center transition-all">
-                <Upload className="w-8 h-8 mx-auto text-blue-600 dark:text-amber-400 mb-2" />
-                <span className="text-blue-600 dark:text-amber-300 font-bold hover:underline">Click to Upload Image Files</span>
-                <p className="text-xs text-gray-500 mt-1">Supports PNG, JPG, JPEG, WEBP, GIF, SVG (up to 5 images)</p>
+              <label className="cursor-pointer block border border-amber-500/30 hover:border-amber-400 bg-slate-950 p-6 rounded-xl text-center transition-all">
+                <Upload className="w-8 h-8 mx-auto text-amber-400 mb-2" />
+                <span className="text-amber-300 font-bold text-sm hover:underline">Select Image Files (PNG, JPG, WEBP, GIF, SVG)</span>
                 <input
                   type="file"
                   multiple
@@ -230,16 +244,15 @@ const AdminAddProperty = ({ setActiveTab }) => {
               </label>
             </div>
 
-            {/* Image Previews */}
             {imagePreviews.length > 0 && (
               <div className="grid grid-cols-5 gap-3 pt-2">
                 {imagePreviews.map((src, idx) => (
-                  <div key={idx} className="relative group aspect-video rounded-lg overflow-hidden border border-amber-400/50">
+                  <div key={idx} className="relative group aspect-video rounded-xl overflow-hidden border border-amber-400">
                     <img src={src} alt="preview" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(idx)}
-                      className="absolute top-1 right-1 p-1 bg-rose-600 rounded-full text-white hover:scale-110 transition-transform"
+                      className="absolute top-1 right-1 p-1 bg-rose-600 rounded-full text-white hover:scale-110"
                     >
                       <X size={12} />
                     </button>
@@ -248,9 +261,8 @@ const AdminAddProperty = ({ setActiveTab }) => {
               </div>
             )}
 
-            {/* Option 2: Image URL Input */}
             <div className="pt-2">
-              <label className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mb-1 font-semibold">
+              <label className="text-xs text-amber-300 flex items-center gap-1 mb-1 font-bold">
                 <LinkIcon size={14} /> Option B: Direct Image Web URL
               </label>
               <input
@@ -259,38 +271,38 @@ const AdminAddProperty = ({ setActiveTab }) => {
                 value={formData.imageUrl}
                 onChange={handleChange}
                 placeholder="https://images.unsplash.com/photo-..."
-                className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-sm"
+                className="w-full bg-slate-950 border border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-xs text-white"
               />
             </div>
           </div>
 
-          {/* VIDEO UPLOAD (OPTIONAL) */}
-          <div className="border border-gray-200 dark:border-amber-500/20 rounded-2xl p-6 bg-gray-50 dark:bg-slate-950/60 space-y-3">
-            <div className="flex items-center gap-2 text-rose-500 font-bold">
-              <Video size={20} />
-              <span>Property Video Tour (Optional)</span>
+          {/* VIDEO TOUR (OPTIONAL) */}
+          <div className="border border-amber-500/30 rounded-2xl p-6 bg-slate-900/60 space-y-3">
+            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm">
+              <Video size={18} />
+              <span>Video Tour Upload (MP4 / YouTube URL)</span>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Video URL (YouTube / MP4 URL)</label>
+                <label className="text-xs text-gray-300 block mb-1">Video URL</label>
                 <input
                   type="url"
                   name="video"
                   value={formData.video}
                   onChange={handleChange}
                   placeholder="https://www.youtube.com/embed/..."
-                  className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-sm"
+                  className="w-full bg-slate-950 border border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-xs text-white"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-gray-500 block mb-1">Video File Upload</label>
+                <label className="text-xs text-gray-300 block mb-1">Video File Upload</label>
                 <input
                   type="file"
                   accept="video/*"
                   onChange={handleVideoFileChange}
-                  className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white"
+                  className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-slate-950"
                 />
               </div>
             </div>
@@ -300,7 +312,7 @@ const AdminAddProperty = ({ setActiveTab }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-amber-400 dark:via-yellow-500 dark:to-amber-600 text-white dark:text-slate-950 font-extrabold rounded-2xl shadow-lg hover:scale-[1.01] transition-all disabled:opacity-50 text-lg"
+            className="w-full py-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 font-extrabold rounded-2xl shadow-xl hover:scale-[1.01] transition-all disabled:opacity-50 text-base"
           >
             {loading ? "Publishing Property..." : "Publish Property"}
           </button>
