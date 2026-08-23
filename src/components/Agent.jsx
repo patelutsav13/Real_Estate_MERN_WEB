@@ -286,15 +286,21 @@ const AgentCard = ({ agent }) => {
           <div className="flex items-start space-x-4">
             <img
               src={
-                agent.image?.includes("localhost:5000")
-                  ? agent.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL)
-                  : agent.image?.startsWith("http") || agent.image?.startsWith("data:")
-                    ? agent.image
-                    : agent.image?.startsWith("/uploads")
-                      ? `${config.API_URL}${agent.image}`
-                      : `${config.API_URL}/uploads/${agent.image}` || "/placeholder.svg"
+                !agent.image
+                  ? "/placeholder.svg"
+                  : agent.image?.startsWith("http") || agent.image?.startsWith("data:") || agent.image?.startsWith("blob:")
+                    ? (agent.image.includes("localhost:5000") ? agent.image.replace("http://localhost:5000", config.API_URL).replace("https://localhost:5000", config.API_URL) : agent.image)
+                    : agent.image?.startsWith("/assets") || agent.image?.startsWith("assets")
+                      ? (agent.image.startsWith("/") ? agent.image : `/${agent.image}`)
+                      : agent.image?.startsWith("/uploads")
+                        ? `${config.API_URL}${agent.image}`
+                        : `${config.API_URL}/uploads/${agent.image}`
               }
               alt={agent.name}
+              onError={(e) => {
+                e.target.onerror = null
+                e.target.src = "/placeholder.svg"
+              }}
               className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
             />
             <div className="flex-1">
