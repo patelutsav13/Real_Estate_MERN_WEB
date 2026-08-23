@@ -3,36 +3,36 @@ import { createContext, useContext, useEffect, useState } from "react"
 const ThemeContext = createContext()
 
 export const ThemeProvider = ({ children }) => {
-    const [theme, setTheme] = useState(() => {
-        // Check localStorage or system preference
-        if (localStorage.getItem("theme")) {
-            return localStorage.getItem("theme")
-        }
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-    })
-
-    useEffect(() => {
-        const root = window.document.documentElement
-
-        // Remove both specific classes first to reset
-        root.classList.remove("light", "dark")
-
-        // Add the current theme class
-        root.classList.add(theme)
-
-        // Save to localStorage
-        localStorage.setItem("theme", theme)
-    }, [theme])
-
-    const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"))
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("theme")) {
+      return localStorage.getItem("theme")
     }
+    return "dark" // Default to dark luxury theme
+  })
 
-    return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    )
+  useEffect(() => {
+    const root = window.document.documentElement
+    const body = window.document.body
+
+    root.classList.remove("light", "dark")
+    body.classList.remove("light", "dark")
+
+    root.classList.add(theme)
+    body.classList.add(theme)
+
+    root.style.colorScheme = theme
+    localStorage.setItem("theme", theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"))
+  }
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  )
 }
 
 export const useTheme = () => useContext(ThemeContext)
