@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
 import config from "../config"
-import SearchBar from "./SearchBar"
 import PropertyCard from "./PropertyCard"
-import FilterPanel from "./FilterPanel"
+import { PlusCircle, Upload, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react"
 
 const Sell = ({ openDetails, setCurrentPage }) => {
   const { user } = useAuth()
@@ -26,7 +26,6 @@ const Sell = ({ openDetails, setCurrentPage }) => {
 
   const [imageFile, setImageFile] = useState(null)
 
-  // Fetch User's Properties
   const fetchProperties = async () => {
     try {
       const token = localStorage.getItem("token")
@@ -38,12 +37,6 @@ const Sell = ({ openDetails, setCurrentPage }) => {
         }
       })
       const data = await res.json()
-
-      // Show User's properites (all types or filtered as needed? "Your Listings" implies all user's listings that are For Sale)
-      // User requested: "if you add in this dashboard property for sell then also come in this sell page"
-      // Dashboard shows ALL user listings. Sell page title is "Your Listings (For Sale)".
-      // So we should filter checking for "For Sale" status.
-      // Also ensuring flexibility with status strings if user entered "Sell" manually.
       const myListings = data.filter(p => p.status === "For Sale" || p.status === "Sell")
       setProperties(myListings)
       setLoading(false)
@@ -62,43 +55,20 @@ const Sell = ({ openDetails, setCurrentPage }) => {
     }
   }, [user])
 
-  // Handle Form Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  // Handle File Change
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-
     if (file) {
-      // 1. Check File Type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        alert("Invalid file type! Please upload only JPG, JPEG, PNG, or WEBP images.");
-        e.target.value = ""; // Clear input
-        setImageFile(null);
-        return;
-      }
-
-      // 2. Check File Size (5MB Limit)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-      if (file.size > maxSize) {
-        alert("File too large! Please upload an image smaller than 5MB.");
-        e.target.value = ""; // Clear input
-        setImageFile(null);
-        return;
-      }
-
       setImageFile(file);
     }
   }
 
-  // Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Auth Check
     if (!user) {
       alert("Please Login to list a property!")
       setCurrentPage("login")
@@ -115,7 +85,7 @@ const Sell = ({ openDetails, setCurrentPage }) => {
     data.append("image", imageFile)
 
     try {
-      const token = localStorage.getItem("token") // Get token for auth
+      const token = localStorage.getItem("token")
       const res = await fetch(`${config.API_URL}/api/properties`, {
         method: "POST",
         headers: {
@@ -125,9 +95,8 @@ const Sell = ({ openDetails, setCurrentPage }) => {
       })
 
       if (res.ok) {
-        alert("Property Listed Successfully!")
-        fetchProperties() // Refresh list
-        // Reset form
+        alert("🎉 Property Listed Successfully!")
+        fetchProperties()
         setFormData({
           name: "", address: "", price: "", priceValue: "", bedrooms: "", bathrooms: "", area: "",
           type: "Apartment", status: "For Sale"
@@ -135,7 +104,6 @@ const Sell = ({ openDetails, setCurrentPage }) => {
         setImageFile(null)
       } else {
         const errData = await res.json()
-        console.error("Server Error:", errData)
         alert("Failed to list property: " + (errData.message || JSON.stringify(errData)))
       }
     } catch (err) {
@@ -145,85 +113,144 @@ const Sell = ({ openDetails, setCurrentPage }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Hero */}
-      <div className="max-w-7xl mx-auto mb-12 text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-          Sell Your <span className="text-blue-600">Property</span>
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          List your property here and it will appear in the Buy section.
-        </p>
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+      
+      {/* Hero Header */}
+      <div className="max-w-7xl mx-auto mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="bg-slate-900/85 backdrop-blur-2xl rounded-3xl p-10 border border-amber-500/20 shadow-2xl text-center relative overflow-hidden mb-10"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest mb-4">
+            <PlusCircle size={14} className="animate-pulse" /> List Your Luxury Asset
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-4">
+            Sell Your <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">Property</span>
+          </h1>
+
+          <p className="text-gray-300 max-w-xl mx-auto text-base">
+            Reach thousands of verified buyers in Ahmedabad. High valuation and instant property listing.
+          </p>
+        </motion.div>
       </div>
 
       {/* FORM SECTION */}
-      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg mb-12">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Add New Property</h2>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="max-w-4xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-gray-200 dark:border-amber-500/20 shadow-2xl mb-16 text-gray-900 dark:text-white"
+      >
+        <h2 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-gray-900 dark:text-amber-400">
+          <Sparkles size={22} /> Add Property Details
+        </h2>
 
         {!user && (
-          <div className="mb-4 p-4 bg-yellow-100 text-yellow-800 rounded-lg">
-            Note: You need to be logged in to list a property.
+          <div className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 rounded-2xl text-sm font-semibold flex items-center gap-3">
+            <ShieldCheck size={20} /> Note: You need to log in to publish your listing.
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input name="name" placeholder="Property Title (e.g. Luxury Villa)" value={formData.name} onChange={handleChange} required className="input p-3 border rounded w-full" />
-          <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} required className="input p-3 border rounded w-full" />
-          <input name="area" placeholder="Area (e.g. Satellite)" value={formData.area} onChange={handleChange} required className="input p-3 border rounded w-full" />
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Property Title *</label>
+            <input name="name" placeholder="e.g. Modern Villa in Satellite" value={formData.name} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
 
-          <select name="type" value={formData.type} onChange={handleChange} className="input p-3 border rounded w-full">
-            <option value="Apartment">Apartment</option>
-            <option value="Villa">Villa</option>
-            <option value="House">House</option>
-          </select>
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Full Address *</label>
+            <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
 
-          <input name="price" placeholder="Display Price (e.g. 1.5 Cr)" value={formData.price} onChange={handleChange} required className="input p-3 border rounded w-full" />
-          <input name="priceValue" type="number" placeholder="Numeric Price (e.g. 15000000)" value={formData.priceValue} onChange={handleChange} required className="input p-3 border rounded w-full" />
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Area / Suburb *</label>
+            <input name="area" placeholder="e.g. Satellite" value={formData.area} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
 
-          <input name="bedrooms" type="number" placeholder="Bedrooms" value={formData.bedrooms} onChange={handleChange} required className="input p-3 border rounded w-full" />
-          <input name="bathrooms" type="number" placeholder="Bathrooms" value={formData.bathrooms} onChange={handleChange} required className="input p-3 border rounded w-full" />
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Property Type</label>
+            <select name="type" value={formData.type} onChange={handleChange} className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none">
+              <option value="Apartment">Apartment</option>
+              <option value="Villa">Villa</option>
+              <option value="House">House</option>
+            </select>
+          </div>
 
-          <select name="status" value={formData.status} onChange={handleChange} className="input p-3 border rounded w-full">
-            <option value="For Sale">For Sale</option>
-            <option value="For Rent">For Rent</option>
-          </select>
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Display Price *</label>
+            <input name="price" placeholder="e.g. 1.5 Cr" value={formData.price} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Numeric Price (for filtering) *</label>
+            <input name="priceValue" type="number" placeholder="15000000" value={formData.priceValue} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Bedrooms</label>
+            <input name="bedrooms" type="number" placeholder="3" value={formData.bedrooms} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Bathrooms</label>
+            <input name="bathrooms" type="number" placeholder="2" value={formData.bathrooms} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+          </div>
 
           {/* FILE UPLOAD INPUT */}
           <div className="col-span-1 md:col-span-2">
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Upload Property Image</label>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-              required
-            />
+            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-2">Upload High Res Property Image *</label>
+            <label className="cursor-pointer block border-2 border-dashed border-gray-300 dark:border-amber-500/30 hover:border-amber-400 bg-gray-50 dark:bg-slate-950 p-6 rounded-2xl text-center transition-all">
+              <Upload className="w-8 h-8 mx-auto text-blue-600 dark:text-amber-400 mb-2" />
+              <span className="text-blue-600 dark:text-amber-300 font-bold hover:underline">Select Image File (PNG, JPG, WEBP)</span>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                required
+              />
+              {imageFile && (
+                <p className="text-xs text-emerald-500 mt-2 font-bold flex items-center justify-center gap-1">
+                  <CheckCircle2 size={14} /> Attached: {imageFile.name}
+                </p>
+              )}
+            </label>
           </div>
 
-          <button type="submit" className="col-span-1 md:col-span-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-bold hover:scale-105 transition shadow-lg">
-            {user ? "List Property" : "Login to List"}
-          </button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="col-span-1 md:col-span-2 py-4 bg-blue-600 dark:bg-gradient-to-r dark:from-amber-400 dark:via-yellow-500 dark:to-amber-600 text-white dark:text-slate-950 font-extrabold rounded-2xl shadow-xl transition-all text-base"
+          >
+            {user ? "Publish Property Listing" : "Login to List Property"}
+          </motion.button>
         </form>
-      </div>
+      </motion.div>
 
-      {/* LIST SECTION */}
+      {/* USER LISTINGS SECTION */}
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Your Listings (For Sale)</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 className="text-2xl font-extrabold mb-6 text-gray-900 dark:text-white">Your Published Property Listings</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <p className="text-gray-500">Loading properties...</p>
+            <p className="text-amber-400 font-bold col-span-full text-center">Loading your property listings...</p>
           ) : properties.length > 0 ? (
-            properties.map((p) => (
-              <div key={p._id || p.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <PropertyCard
-                  property={p}
-                  onViewDetails={openDetails}
-                />
-              </div>
+            properties.map((p, idx) => (
+              <motion.div
+                key={p._id || p.id || idx}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+              >
+                <PropertyCard property={p} onViewDetails={openDetails} />
+              </motion.div>
             ))
           ) : (
-            <p className="col-span-full text-center text-gray-500">
+            <p className="col-span-full text-center text-gray-400 py-12 font-semibold">
               No properties listed for sale yet.
             </p>
           )}

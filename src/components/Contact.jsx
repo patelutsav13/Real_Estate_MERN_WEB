@@ -1,7 +1,8 @@
 "use client"
 
-import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { Mail, Phone, MapPin, Send, Sparkles } from "lucide-react"
 import { useState } from "react"
+import { motion } from "framer-motion"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,8 +15,7 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
-    alert("Thank you for contacting us! We will get back to you soon.")
+    alert("🎉 Thank you for reaching out to PrimeEstate! Our luxury advisor will contact you shortly.")
     setFormData({ name: "", email: "", phone: "", subject: "", message: "" })
   }
 
@@ -27,154 +27,166 @@ const Contact = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
+        
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Contact{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Us</span>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest mb-4">
+            <Sparkles size={14} className="animate-pulse" /> Direct Concierge Service
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-4">
+            Contact <span className="bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent font-serif">PRIMEESTATE</span>
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">Get in touch with our team for any inquiries</p>
-        </div>
+
+          <p className="text-lg text-gray-600 dark:text-amber-200/80 max-w-xl mx-auto font-serif">
+            Get in touch with our luxury estate advisory team for personal consultations.
+          </p>
+        </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-8">
+          
           {/* Contact Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 border border-gray-200 dark:border-amber-500/20 shadow-2xl text-gray-900 dark:text-white"
+          >
+            <h2 className="text-2xl font-extrabold mb-6 text-gray-900 dark:text-amber-400">Send an Inquiry</h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Your Full Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200"
-                  placeholder="Your name"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl outline-none"
+                  placeholder="e.g. Utsav Patel"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+                <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Email Address *</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl outline-none"
                   placeholder="your.email@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phone *</label>
+                <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Phone Number *</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl outline-none"
                   placeholder="+91 98765 43210"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Subject *</label>
+                <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Subject / Inquiry Type *</label>
                 <input
                   type="text"
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200"
-                  placeholder="What is this regarding?"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl outline-none"
+                  placeholder="Villa Acquisition / Estate Rental"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Message *</label>
+                <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Message Details *</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  rows={5}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-700 dark:text-gray-200 resize-none"
-                  placeholder="Tell us more about your inquiry..."
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl outline-none resize-none"
+                  placeholder="Tell us about your property preferences..."
                 />
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-blue-600 dark:bg-gradient-to-r dark:from-amber-400 dark:via-yellow-500 dark:to-amber-600 text-white dark:text-slate-950 rounded-2xl font-extrabold shadow-xl text-base"
               >
-                <Send className="w-5 h-5" />
-                <span>Send Message</span>
-              </button>
+                <Send size={18} />
+                <span>Submit Inquiry</span>
+              </motion.button>
             </form>
-          </div>
+          </motion.div>
 
-          {/* Contact Information */}
-          <div className="space-y-6">
-            {/* Contact Cards */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                  <Phone className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          {/* Contact Details */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="space-y-6"
+          >
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-amber-500/20 shadow-xl text-gray-900 dark:text-white">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-2xl">
+                  <Phone size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Phone</h3>
-                  <p className="text-gray-600 dark:text-gray-400">+91 98765 43210</p>
-                  <p className="text-gray-600 dark:text-gray-400">+91 98765 43211</p>
+                  <h3 className="text-lg font-bold mb-1">Direct Phone</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">+91 98765 43210</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">+91 98765 43211</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                  <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-amber-500/20 shadow-xl text-gray-900 dark:text-white">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-2xl">
+                  <Mail size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Email</h3>
-                  <p className="text-gray-600 dark:text-gray-400">info@realestatepro.com</p>
-                  <p className="text-gray-600 dark:text-gray-400">support@realestatepro.com</p>
+                  <h3 className="text-lg font-bold mb-1">Email Concierge</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">concierge@primeestate.com</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">support@primeestate.com</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300">
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                  <MapPin className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-amber-500/20 shadow-xl text-gray-900 dark:text-white">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-2xl">
+                  <MapPin size={24} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Office Address</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Office No. 501, Silver Plaza,
-                    <br />
-                    Satellite Road, Ahmedabad - 380015
-                    <br />
+                  <h3 className="text-lg font-bold mb-1">Headquarters</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    PrimeEstate Tower, 501 Luxury Plaza,<br />
+                    Satellite Road, Ahmedabad - 380015,<br />
                     Gujarat, India
                   </p>
                 </div>
               </div>
             </div>
-
-            {/* Office Hours */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-              <h3 className="text-xl font-bold mb-4">Office Hours</h3>
-              <div className="space-y-2">
-                <p>Monday - Friday: 9:00 AM - 7:00 PM</p>
-                <p>Saturday: 10:00 AM - 6:00 PM</p>
-                <p>Sunday: Closed</p>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
+"use client"
 
-// "use client"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import Explore from "./components/Explore"
@@ -26,7 +26,6 @@ import "./App.css"
 import { ThemeProvider } from "./context/ThemeContext"
 
 function App() {
-  // Check URL on mount/reload to handle external links (like reset password)
   const [currentPage, setCurrentPage] = useState(() => {
     const path = window.location.pathname
     if (path === "/reset-password") return "reset-password"
@@ -36,20 +35,17 @@ function App() {
   const [selectedProperty, setSelectedProperty] = useState(null)
   const [previousPage, setPreviousPage] = useState("explore")
 
-  /* Open property details */
   const openDetails = (property, sourcePage) => {
     setPreviousPage(currentPage)
     setSelectedProperty({ ...property, source: sourcePage })
     setCurrentPage("property-details")
   }
 
-  /* Go back */
   const goBack = () => {
     setSelectedProperty(null)
     setCurrentPage(previousPage)
   }
 
-  /* Page Renderer */
   const renderPage = () => {
     switch (currentPage) {
       case "explore":
@@ -73,10 +69,12 @@ function App() {
       case "agent":
         return <Agent />
       case "ai-chatbot":
-        return <AIChatbot
-          openDetails={(prop) => openDetails(prop, "explore")}
-          setCurrentPage={setCurrentPage}
-        />
+        return (
+          <AIChatbot
+            openDetails={(prop) => openDetails(prop, "explore")}
+            setCurrentPage={setCurrentPage}
+          />
+        )
       case "about":
         return <About />
       case "contact":
@@ -94,7 +92,13 @@ function App() {
       case "reset-password":
         return <ResetPassword setCurrentPage={setCurrentPage} />
       case "property-details":
-        return <PropertyDetail property={selectedProperty} setCurrentPage={setCurrentPage} goBack={goBack} />
+        return (
+          <PropertyDetail
+            property={selectedProperty}
+            setCurrentPage={setCurrentPage}
+            goBack={goBack}
+          />
+        )
       default:
         return <Explore openDetails={(prop) => openDetails(prop, "explore")} />
     }
@@ -102,14 +106,21 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <Navbar
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
+      <div className="min-h-screen bg-transparent text-slate-900 dark:text-white transition-colors duration-300">
+        <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
         <main className={currentPage === "property-details" ? "pt-0" : "pt-20"}>
-          {renderPage()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
+              {renderPage()}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {currentPage !== "property-details" && currentPage !== "ai-chatbot" && (
