@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
 import config from "../config"
 import PropertyCard from "./PropertyCard"
-import { PlusCircle, Upload, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react"
+import { PlusCircle, Upload, CheckCircle2, ShieldCheck, Sparkles, Link as LinkIcon } from "lucide-react"
 
 const Sell = ({ openDetails, setCurrentPage }) => {
   const { user } = useAuth()
@@ -22,9 +22,11 @@ const Sell = ({ openDetails, setCurrentPage }) => {
     area: "",
     type: "Apartment",
     status: "For Sale",
+    imageUrl: ""
   })
 
   const [imageFile, setImageFile] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const fetchProperties = async () => {
     try {
@@ -75,14 +77,18 @@ const Sell = ({ openDetails, setCurrentPage }) => {
       return
     }
 
-    if (!imageFile) {
-      alert("Please upload an image!")
+    if (!imageFile && !formData.imageUrl.trim()) {
+      alert("Please upload an image file OR provide a direct Image Web URL!")
       return
     }
 
+    setSubmitting(true)
     const data = new FormData()
     Object.keys(formData).forEach(key => data.append(key, formData[key]))
-    data.append("image", imageFile)
+    if (imageFile) {
+      data.append("image", imageFile)
+      data.append("images", imageFile)
+    }
 
     try {
       const token = localStorage.getItem("token")
@@ -94,21 +100,23 @@ const Sell = ({ openDetails, setCurrentPage }) => {
         body: data,
       })
 
-      if (res.ok) {
+      if (res.ok || res.status === 201) {
         alert("🎉 Property Listed Successfully!")
         fetchProperties()
         setFormData({
           name: "", address: "", price: "", priceValue: "", bedrooms: "", bathrooms: "", area: "",
-          type: "Apartment", status: "For Sale"
+          type: "Apartment", status: "For Sale", imageUrl: ""
         })
         setImageFile(null)
       } else {
-        const errData = await res.json()
-        alert("Failed to list property: " + (errData.message || JSON.stringify(errData)))
+        const errData = await res.json().catch(() => ({}))
+        alert("Failed to list property: " + (errData.message || "Server Error"))
       }
     } catch (err) {
       console.error(err)
       alert("Error submitting form: " + err.message)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -121,7 +129,7 @@ const Sell = ({ openDetails, setCurrentPage }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="bg-slate-900/85 backdrop-blur-2xl rounded-3xl p-10 border border-amber-500/20 shadow-2xl text-center relative overflow-hidden mb-10"
+          className="bg-slate-900/85 backdrop-blur-2xl rounded-3xl p-10 border border-amber-500/20 shadow-2xl text-center relative overflow-hidden mb-10 text-white"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest mb-4">
             <PlusCircle size={14} className="animate-pulse" /> List Your Luxury Asset
@@ -142,99 +150,116 @@ const Sell = ({ openDetails, setCurrentPage }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="max-w-4xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-gray-200 dark:border-amber-500/20 shadow-2xl mb-16 text-gray-900 dark:text-white"
+        className="max-w-4xl mx-auto bg-slate-950/80 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-amber-500/30 shadow-2xl mb-16 text-white"
       >
-        <h2 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-gray-900 dark:text-amber-400">
+        <h2 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-amber-400">
           <Sparkles size={22} /> Add Property Details
         </h2>
 
         {!user && (
-          <div className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 text-amber-800 dark:text-amber-300 rounded-2xl text-sm font-semibold flex items-center gap-3">
+          <div className="mb-6 p-4 bg-amber-500/20 border border-amber-500/30 text-amber-300 rounded-2xl text-sm font-semibold flex items-center gap-3">
             <ShieldCheck size={20} /> Note: You need to log in to publish your listing.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Property Title *</label>
-            <input name="name" placeholder="e.g. Modern Villa in Satellite" value={formData.name} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Property Title *</label>
+            <input name="name" placeholder="e.g. Modern Villa in Satellite" value={formData.name} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Full Address *</label>
-            <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Full Address *</label>
+            <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Area / Suburb *</label>
-            <input name="area" placeholder="e.g. Satellite" value={formData.area} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Area / Suburb *</label>
+            <input name="area" placeholder="e.g. Satellite, Vastral, Nikol" value={formData.area} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Property Type</label>
-            <select name="type" value={formData.type} onChange={handleChange} className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none">
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Property Type</label>
+            <select name="type" value={formData.type} onChange={handleChange} className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm font-bold">
               <option value="Apartment">Apartment</option>
-              <option value="Villa">Villa</option>
               <option value="House">House</option>
+              <option value="Villa">Villa</option>
+              <option value="Office">Office</option>
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Display Price *</label>
-            <input name="price" placeholder="e.g. 1.5 Cr" value={formData.price} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Display Price *</label>
+            <input name="price" placeholder="e.g. 1.5 Cr or 45,000" value={formData.price} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Numeric Price (for filtering) *</label>
-            <input name="priceValue" type="number" placeholder="15000000" value={formData.priceValue} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Numeric Price (for filtering) *</label>
+            <input name="priceValue" type="number" placeholder="15000000" value={formData.priceValue} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Bedrooms</label>
-            <input name="bedrooms" type="number" placeholder="3" value={formData.bedrooms} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Bedrooms</label>
+            <input name="bedrooms" type="number" placeholder="3" value={formData.bedrooms} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-1">Bathrooms</label>
-            <input name="bathrooms" type="number" placeholder="2" value={formData.bathrooms} onChange={handleChange} required className="w-full bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-amber-500/20 rounded-xl px-4 py-3 outline-none" />
+            <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">Bathrooms</label>
+            <input name="bathrooms" type="number" placeholder="2" value={formData.bathrooms} onChange={handleChange} required className="w-full bg-slate-900 border border-amber-500/20 rounded-xl px-4 py-3 outline-none text-white text-sm" />
           </div>
 
-          {/* FILE UPLOAD INPUT */}
-          <div className="col-span-1 md:col-span-2">
-            <label className="text-xs font-bold text-gray-600 dark:text-amber-400 uppercase tracking-wider block mb-2">Upload High Res Property Image *</label>
-            <label className="cursor-pointer block border-2 border-dashed border-gray-300 dark:border-amber-500/30 hover:border-amber-400 bg-gray-50 dark:bg-slate-950 p-6 rounded-2xl text-center transition-all">
-              <Upload className="w-8 h-8 mx-auto text-blue-600 dark:text-amber-400 mb-2" />
-              <span className="text-blue-600 dark:text-amber-300 font-bold hover:underline">Select Image File (PNG, JPG, WEBP)</span>
+          {/* FILE UPLOAD & URL INPUT */}
+          <div className="col-span-1 md:col-span-2 border border-amber-500/30 rounded-2xl p-6 bg-slate-900/60 space-y-4">
+            <div>
+              <label className="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-2">Upload Property Image File</label>
+              <label className="cursor-pointer block border border-amber-500/30 hover:border-amber-400 bg-slate-950 p-6 rounded-2xl text-center transition-all">
+                <Upload className="w-8 h-8 mx-auto text-amber-400 mb-2" />
+                <span className="text-amber-300 font-bold text-sm hover:underline">Select Image File (PNG, JPG, WEBP, GIF, SVG)</span>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                {imageFile && (
+                  <p className="text-xs text-emerald-400 mt-2 font-bold flex items-center justify-center gap-1">
+                    <CheckCircle2 size={14} /> Attached: {imageFile.name}
+                  </p>
+                )}
+              </label>
+            </div>
+
+            <div className="pt-2">
+              <label className="text-xs text-amber-300 flex items-center gap-1 mb-1 font-bold">
+                <LinkIcon size={14} /> Option B: Direct Image Web URL
+              </label>
               <input
-                type="file"
-                name="image"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-                required
+                type="url"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                placeholder="https://images.unsplash.com/photo-..."
+                className="w-full bg-slate-950 border border-amber-500/20 rounded-xl px-4 py-2.5 outline-none text-xs text-white"
               />
-              {imageFile && (
-                <p className="text-xs text-emerald-500 mt-2 font-bold flex items-center justify-center gap-1">
-                  <CheckCircle2 size={14} /> Attached: {imageFile.name}
-                </p>
-              )}
-            </label>
+            </div>
           </div>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="col-span-1 md:col-span-2 py-4 bg-blue-600 dark:bg-gradient-to-r dark:from-amber-400 dark:via-yellow-500 dark:to-amber-600 text-white dark:text-slate-950 font-extrabold rounded-2xl shadow-xl transition-all text-base"
+            disabled={submitting}
+            className="col-span-1 md:col-span-2 py-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 font-extrabold rounded-2xl shadow-xl transition-all text-base disabled:opacity-50"
           >
-            {user ? "Publish Property Listing" : "Login to List Property"}
+            {submitting ? "Publishing Listing..." : user ? "Publish Property Listing" : "Login to List Property"}
           </motion.button>
         </form>
       </motion.div>
 
       {/* USER LISTINGS SECTION */}
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-extrabold mb-6 text-gray-900 dark:text-white">Your Published Property Listings</h2>
+        <h2 className="text-2xl font-extrabold mb-6 text-white">Your Published Property Listings</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
             <p className="text-amber-400 font-bold col-span-full text-center">Loading your property listings...</p>
