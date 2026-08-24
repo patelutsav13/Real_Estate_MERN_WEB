@@ -18,7 +18,8 @@ const Rent = ({ openDetails }) => {
       try {
         const res = await fetch(`${config.API_URL}/api/properties`)
         const data = await res.json()
-        const rentProps = data.filter(p => p.status === "For Rent" || p.status === "Rented")
+        const items = Array.isArray(data) ? data : data.properties || []
+        const rentProps = items.filter((p) => p.status === "For Rent" || p.status === "Rented")
         setAllProperties(rentProps)
         setProperties(rentProps)
         setLoading(false)
@@ -38,7 +39,10 @@ const Rent = ({ openDetails }) => {
 
   const applyAllFilters = (search, panel) => {
     const filtered = allProperties.filter((property) => {
-      const matchArea = !search.area || property.area?.toLowerCase().includes(search.area.toLowerCase()) || property.address?.toLowerCase().includes(search.area.toLowerCase())
+      const matchArea =
+        !search.area ||
+        property.area?.toLowerCase().includes(search.area.toLowerCase()) ||
+        property.address?.toLowerCase().includes(search.area.toLowerCase())
       const matchType = !search.type || property.type === search.type
       const matchPrice =
         property.priceValue >= panel.priceRange[0] &&
@@ -64,7 +68,6 @@ const Rent = ({ openDetails }) => {
 
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      
       {/* Hero Banner */}
       <div className="max-w-7xl mx-auto mb-12">
         <motion.div
@@ -97,12 +100,16 @@ const Rent = ({ openDetails }) => {
 
       {/* Listings Grid */}
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white">Rental Residences ({properties.length})</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Flexible lease options with 100% verified documentation</p>
+        <div className="bg-slate-950/70 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-emerald-500/20 shadow-xl mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Rental Residences ({properties.length})</h2>
+              <p className="text-xs text-gray-400 mt-1">Flexible lease options with 100% verified documentation</p>
+            </div>
+            <div className="w-full sm:w-auto">
+              <FilterPanel onFilter={handleFilter} />
+            </div>
           </div>
-          <FilterPanel onFilter={handleFilter} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

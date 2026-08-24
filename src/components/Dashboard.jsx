@@ -20,18 +20,26 @@ const Dashboard = ({ setCurrentPage }) => {
     const fetchData = async () => {
       if (!user) return
       setLoading(true)
-      const token = localStorage.getItem("token")
+      const rawToken = localStorage.getItem("token")
+      const token = rawToken ? rawToken.trim().replace(/^["']|["']$/g, "") : ""
       const config = { headers: { Authorization: `Bearer ${token}` } }
 
       try {
-        const rentRes = await axios.get(`${API}/api/rent/my-rentals`, config)
-        setRentHistory(rentRes.data)
+        const [rentRes, buyRes, listRes] = await Promise.allSettled([
+          axios.get(`${API}/api/rent/my-rentals`, config),
+          axios.get(`${API}/api/buy/my-purchases`, config),
+          axios.get(`${API}/api/properties/my-listings`, config),
+        ])
 
-        const buyRes = await axios.get(`${API}/api/buy/my-purchases`, config)
-        setPurchaseHistory(buyRes.data)
-
-        const listRes = await axios.get(`${API}/api/properties/my-listings`, config)
-        setMyListings(listRes.data)
+        if (rentRes.status === "fulfilled" && Array.isArray(rentRes.value.data)) {
+          setRentHistory(rentRes.value.data)
+        }
+        if (buyRes.status === "fulfilled" && Array.isArray(buyRes.value.data)) {
+          setPurchaseHistory(buyRes.value.data)
+        }
+        if (listRes.status === "fulfilled" && Array.isArray(listRes.value.data)) {
+          setMyListings(listRes.value.data)
+        }
       } catch (err) {
         console.error("Error fetching dashboard data:", err)
       } finally {

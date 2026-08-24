@@ -26,10 +26,15 @@ const AdminAddAgent = ({ setActiveTab }) => {
     e.preventDefault()
 
     setLoading(true)
-    const token = localStorage.getItem("token")
+    const rawToken = localStorage.getItem("token")
+    const token = rawToken ? rawToken.trim().replace(/^["']|["']$/g, "") : ""
 
     const data = new FormData()
-    Object.keys(formData).forEach(key => data.append(key, formData[key]))
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] !== undefined && formData[key] !== null) {
+        data.append(key, formData[key])
+      }
+    })
     if (imageFile) {
       data.append("image", imageFile)
     }
@@ -38,8 +43,8 @@ const AdminAddAgent = ({ setActiveTab }) => {
       await axios.post(`${API}/api/admin/add-agent`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
+          "Content-Type": "multipart/form-data",
+        },
       })
       alert("🎉 Certified Agent Account Created Successfully!")
       setFormData({ name: "", email: "", phone: "", password: "", title: "", address: "", experience: "", expertise: "", imageUrl: "" })

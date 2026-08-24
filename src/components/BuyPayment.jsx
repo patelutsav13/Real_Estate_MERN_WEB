@@ -30,7 +30,9 @@ const BuyPayment = ({ property, setCurrentPage }) => {
         setProcessing(true)
 
         try {
-            const token = localStorage.getItem("token")
+            const rawToken = localStorage.getItem("token")
+            const token = rawToken ? rawToken.trim().replace(/^["']|["']$/g, "") : ""
+
             const response = await fetch(`${config.API_URL}/api/buy/pay`, {
                 method: "POST",
                 headers: {
@@ -50,8 +52,8 @@ const BuyPayment = ({ property, setCurrentPage }) => {
             }
 
             const data = await response.json()
-            alert(`🎉 ${data.message}`)
-            setCurrentPage("explore")
+            alert(`🎉 Property Acquisition Confirmed!\nRedirecting to your dashboard to view your purchase record.`)
+            setCurrentPage("dashboard")
         } catch (error) {
             console.error("Payment error:", error)
             alert(`❌ Payment failed: ${error.message}`)

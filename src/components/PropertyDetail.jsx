@@ -33,10 +33,12 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
     }
   }, [property._id])
 
+  const defaultWalkthroughVideo = "https://www.image2url.com/r2/default/videos/1787537756433-30dea8f8-09e7-446e-9a96-32a0cdf81b77.mp4"
+  const activeVideoUrl = currentProperty.video || defaultWalkthroughVideo
   const imageList = currentProperty.images && currentProperty.images.length > 0 ? currentProperty.images : [currentProperty.image]
   const isRentProperty = currentProperty.source === "rent"
   const actionText = isRentProperty ? "Pay Rent" : "Acquire Property"
-  const hasVideo = Boolean(currentProperty.video)
+  const hasVideo = Boolean(activeVideoUrl)
 
   // Auto-slide images every 3.5 seconds if multiple images exist
   useEffect(() => {
@@ -284,16 +286,16 @@ const PropertyDetail = ({ property, goBack, setCurrentPage }) => {
               </div>
 
               <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-amber-500/20">
-                {currentProperty.video?.startsWith("http") ? (
+                {activeVideoUrl?.includes("youtube.com") || activeVideoUrl?.includes("youtu.be") ? (
                   <iframe
-                    src={currentProperty.video}
+                    src={activeVideoUrl}
                     title="Video Tour"
                     className="w-full h-full border-0"
                     allowFullScreen
                   />
                 ) : (
                   <video
-                    src={getImageUrl(currentProperty.video)}
+                    src={getImageUrl(activeVideoUrl)}
                     controls
                     autoPlay
                     className="w-full h-full object-contain"
