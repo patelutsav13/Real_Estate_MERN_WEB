@@ -298,7 +298,7 @@ const Explore = ({ openDetails }) => {
                   className="p-3 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 rounded-xl font-bold shadow-lg hover:scale-105 transition-all flex items-center gap-1.5 text-xs"
                 >
                   {isVideoPlaying ? <Pause size={16} /> : <Play size={16} />}
-                  <span>{isVideoPlaying ? "Pause Video" : "Play Video"}</span>
+                  <span>{isVideoPlaying ? "Pause" : "Play"}</span>
                 </button>
 
                 <button
@@ -310,7 +310,7 @@ const Explore = ({ openDetails }) => {
                   }`}
                 >
                   {!isAudioMuted ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                  <span>{!isAudioMuted ? "Audio Enabled 🔊" : "Click to Unmute with Audio 🔇"}</span>
+                  <span>{!isAudioMuted ? "🔊" : "🔇"}</span>
                 </button>
               </div>
 
