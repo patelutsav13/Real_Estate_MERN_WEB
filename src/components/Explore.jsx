@@ -260,66 +260,98 @@ const Explore = ({ openDetails }) => {
           className="relative rounded-3xl overflow-hidden bg-slate-950/90 border-2 border-amber-500/40 shadow-[0_20px_60px_rgba(212,175,55,0.25)] group"
         >
           {/* Main AI Video Player (Video 1 from user prompt) */}
-          <div className="relative aspect-video w-full max-h-[560px] bg-black overflow-hidden flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              loop
-              muted={isAudioMuted}
-              playsInline
-              className="w-full h-full object-cover scale-[1.01]"
-              src="https://www.image2url.com/r2/default/videos/1787537689325-44360e3e-b7b0-4492-ba37-9274903b180f.mp4"
-            />
+          <div className="relative aspect-video w-full max-h-[560px] bg-black overflow-hidden">
 
-            {/* Gradient Overlays for Luxury Contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/40 pointer-events-none" />
+  {/* Video */}
+  <video
+    ref={videoRef}
+    autoPlay
+    loop
+    muted={isAudioMuted}
+    playsInline
+    className="w-full h-full object-cover"
+    src="https://www.image2url.com/r2/default/videos/1787537689325-44360e3e-b7b0-4492-ba37-9274903b180f.mp4"
+  />
 
-            {/* Top-Right Watermark Mask & AI Badge (Seamlessly overlays and hides any small corner star) */}
-            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
-              <div className="px-4 py-2 bg-slate-950/90 backdrop-blur-xl border border-amber-400/50 text-amber-300 text-xs font-extrabold rounded-full shadow-2xl flex items-center gap-2">
-                <Sparkles size={14} className="text-amber-400 animate-spin" />
-                <span>PrimeEstate AI Vision</span>
-              </div>
-            </div>
+  {/* Subtle overlay */}
+  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-black/20 pointer-events-none" />
 
-            {/* Top-Left Live Streaming Badge */}
-            <div className="absolute top-4 left-4 z-20">
-              <div className="px-3.5 py-1.5 bg-slate-950/85 backdrop-blur-md border border-amber-500/30 text-emerald-400 text-xs font-extrabold rounded-full shadow-lg flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>Continuous AI Tour</span>
-              </div>
-            </div>
+  {/* AI Badge */}
+  <div className="absolute top-4 right-4 z-20">
+    <div className="px-3 py-1.5 bg-slate-950/70 backdrop-blur-md border border-amber-400/40 text-amber-300 text-xs font-bold rounded-full">
+      <div className="flex items-center gap-1.5">
+        <Sparkles size={12} className="text-amber-400" />
+        <span>PrimeEstate AI Vision</span>
+      </div>
+    </div>
+  </div>
 
-            {/* Video Interactive Control Bar (Play/Pause, Audio Mute/Unmute, Status) */}
-            <div className="absolute bottom-6 left-6 right-6 z-20 flex flex-wrap items-center justify-between gap-4 bg-slate-950/85 backdrop-blur-2xl px-6 py-4 rounded-2xl border border-amber-500/40 shadow-2xl">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={toggleVideoPlayback}
-                  className="p-3 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-slate-950 rounded-xl font-bold shadow-lg hover:scale-105 transition-all flex items-center gap-1.5 text-xs"
-                >
-                  {isVideoPlaying ? <Pause size={16} /> : <Play size={16} />}
-                  <span>{isVideoPlaying ? "Pause" : "Play"}</span>
-                </button>
+  {/* Continuous AI Tour */}
+  <div className="absolute top-4 left-4 z-20">
+    <div className="px-3 py-1.5 bg-slate-950/70 backdrop-blur-md border border-emerald-400/30 text-emerald-400 text-xs font-bold rounded-full">
+      <div className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span>Continuous AI Tour</span>
+      </div>
+    </div>
+  </div>
 
-                <button
-                  onClick={toggleAudio}
-                  className={`p-3 rounded-xl font-bold transition-all flex items-center gap-1.5 text-xs border ${
-                    !isAudioMuted
-                      ? "bg-emerald-600 text-white border-emerald-400 shadow-emerald-500/30"
-                      : "bg-slate-900 text-amber-300 border-amber-500/30 hover:bg-slate-800"
-                  }`}
-                >
-                  {!isAudioMuted ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                  <span>{!isAudioMuted ? "🔊" : "🔇"}</span>
-                </button>
-              </div>
+  {/* Tiny Controls */}
+  <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-30 flex items-center gap-2">
 
-              <div className="text-right hidden sm:block">
-                <p className="text-xs font-extrabold text-amber-300">Ultra HD Architectural Walkthrough</p>
-                <p className="text-[10px] text-gray-400">Continuous 4K Loop • Sound Capable</p>
-              </div>
-            </div>
-          </div>
+    <button
+      type="button"
+      onClick={toggleVideoPlayback}
+      aria-label={isVideoPlaying ? "Pause video" : "Play video"}
+      className="
+        w-8 h-8 sm:w-9 sm:h-9
+        flex items-center justify-center
+        rounded-full
+        bg-slate-950/75
+        backdrop-blur-md
+        border border-amber-400/50
+        text-amber-300
+        hover:bg-slate-950
+        hover:border-amber-300
+        transition-all
+        shadow-lg
+      "
+    >
+      {isVideoPlaying ? (
+        <Pause size={14} />
+      ) : (
+        <Play size={14} />
+      )}
+    </button>
+
+    <button
+      type="button"
+      onClick={toggleAudio}
+      aria-label={isAudioMuted ? "Unmute video" : "Mute video"}
+      className="
+        w-8 h-8 sm:w-9 sm:h-9
+        flex items-center justify-center
+        rounded-full
+        bg-slate-950/75
+        backdrop-blur-md
+        border border-amber-400/50
+        text-amber-300
+        hover:bg-slate-950
+        hover:border-amber-300
+        transition-all
+        shadow-lg
+      "
+    >
+      {isAudioMuted ? (
+        <VolumeX size={14} />
+      ) : (
+        <Volume2 size={14} />
+      )}
+    </button>
+
+  </div>
+
+</div>
         </motion.div>
       </div>
 
